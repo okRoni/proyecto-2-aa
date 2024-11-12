@@ -1,3 +1,4 @@
+from random import randint
 from Card import Card
 
 
@@ -5,7 +6,8 @@ class Deck:
     """ Class that represents a deck of cards of a blackjack game. """
 
     def __init__(self) -> None:
-        self.cards: list[Card] = [
+        # This list contains all 52 cards of a standard deck
+        self.unshown_cards: list[Card] = [
             Card(2, '2_of_clubs.png', 0),
             Card(2, '2_of_diamonds.png', 1),
             Card(2, '2_of_hearts.png', 1),
@@ -59,4 +61,20 @@ class Deck:
             Card(11, 'ace_of_hearts.png', 1),
             Card(11, 'ace_of_spades.png', 0)
         ]
-        
+        self.shown_cards: list[Card] = []
+
+        # 6 full decks are going to be used, that is, 6 of every card
+        for i in range(52):
+            self.unshown_cards += [self.unshown_cards[i] for _ in range(5)]
+
+    def get_random_card(self) -> Card:
+        """
+        Picks a random card and returns it. Also moves
+        the card from unshown_cards to shown_cards.
+        """
+
+        card_index = randint(0, len(self.unshown_cards))
+        card = self.unshown_cards[card_index]
+        del self.unshown_cards[card_index]
+        self.shown_cards.append(card)
+        return card
