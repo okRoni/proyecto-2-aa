@@ -1,3 +1,7 @@
+'''
+contains all the players types in the game
+'''
+
 from abc import ABC, abstractmethod
 
 class Player(ABC):
@@ -27,12 +31,10 @@ class Player(ABC):
         '''
         pass
 
-    @abstractmethod
-    def show_hand(self) -> None:
-        pass
-
-    @abstractmethod
     def get_hand_value(self) -> int:
+        '''
+        Returns the value of the player's hand
+        '''
         pass
 
     def add_card_to_hand(self, card) -> None:
@@ -69,3 +71,17 @@ class Player(ABC):
         Returns True if the player is standing
         '''
         return self.standing
+
+class Crupier(Player):
+    def __init__(self):
+        super().__init__()
+
+    def make_move(self) -> None:
+        pass
+
+    def stand(self) -> None:
+        pass
+
+    def hit(self, deck) -> None:
+        pass
+    
