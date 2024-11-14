@@ -82,3 +82,10 @@ class Deck:
 
         self.shown_cards.append(card)
         return card
+
+    def __len__(self):
+        """
+        Returns the amount of unshown cards.
+        """
+
+        return len(self.unshown_cards)
