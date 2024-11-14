@@ -2,10 +2,10 @@ from deck import Deck
 from player import Player
 
 
-class HumanPlayer(Player):
-    """
-    Class that represents a human player of a blackjack game.
-    """
+class AiPlayer(Player):
+    '''
+    Class that represents an AI player of a blackjack game.
+    '''
 
     def __init__(self):
         super().__init__()
