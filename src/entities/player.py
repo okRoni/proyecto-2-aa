@@ -3,14 +3,15 @@ contains all the players types in the game
 '''
 
 from abc import ABC, abstractmethod
+from card import Card
 from deck import Deck
-
+import numpy as np
 
 class Player(ABC):
     def __init__(self):
-        self.hand : list = []
-        self.standing : bool = False
-        self.busted : bool = False
+        self.hand: list[Card] = []
+        self.standing: bool = False
+        self.busted: bool = False
 
     @abstractmethod
     def make_move(self) -> None:
@@ -27,7 +28,7 @@ class Player(ABC):
         pass
 
     @abstractmethod
-    def hit(self, deck) -> None:
+    def hit(self, deck: Deck) -> None:
         '''
         Adds a card to the player's hand
         '''
@@ -118,6 +119,10 @@ class AiPlayer(Player):
 
     def __init__(self):
         super().__init__()
+        NUM_OF_ACTIONS = 2  # Hit or stand
+        NUM_OF_STATES = 21  # Maximum hand value. If has more, already lost.
+        # Matrix with all possible (action, hand_value) pairs.
+        qtable = np.zeros((NUM_OF_ACTIONS, NUM_OF_STATES), np.int8)
 
     def make_move(self) -> None:
         pass
