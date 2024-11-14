@@ -1,5 +1,5 @@
 from random import randint
-from Card import Card
+from card import Card
 
 
 class Deck:
@@ -74,7 +74,11 @@ class Deck:
         """
 
         card_index = randint(0, len(self.unshown_cards))
-        card = self.unshown_cards[card_index]
-        del self.unshown_cards[card_index]
+        try:
+            card = self.unshown_cards[card_index]
+            del self.unshown_cards[card_index]
+        except IndexError:
+            raise IndexError('Tried to get a card from a empty deck.')
+
         self.shown_cards.append(card)
         return card
