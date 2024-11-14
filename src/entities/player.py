@@ -135,10 +135,9 @@ class AiPlayer(Player):
 
     def __init__(self):
         super().__init__()
-        self.NUM_ACTIONS = 2  # Hit or stand
-        self.NUM_STATES = 21  # Max hand value. If greater, already lost.
-        # Matrix with all possible (action, hand_value) pairs.
-        self.qtable = np.zeros((self.NUM_ACTIONS, self.NUM_STATES), np.int8)
+        # Matrix with all possible (action, state) pairs.
+        # Has dimensions 2x22, 2 actions and 22 possible states (hand values).
+        self.qtable = np.zeros((2, 22), np.int8)
         self.LEARNING_RATE = 0.75
         self.DISCOUNT_FACTOR = 0.75
         self.EXPLORATION_PROBABILITY = 0.25
@@ -148,7 +147,20 @@ class AiPlayer(Player):
         Player chooses what to do on their turn.
         '''
 
-        pass
+        # Available actions.
+        HIT = 0
+        STAND = 1
+        action: int = HIT  # Just as default value.
+        state = self.get_hand_value()
+        if np.random.rand() < self.EXPLORATION_PROBABILITY:
+            # Decides to hit or stand randomly.
+            action = np.random.randint(0, 2)  # Returns 0 or 1.
+        else:
+            # Decides to hit or stand based on the best Q-Value.
+            hit_qvalue = self.qtable[HIT][state]
+            stand_qvalue = self.qtable[STAND][state]
+            action = max(hit_qvalue, stand_qvalue)
+        
 
     def stand(self) -> None:
         '''
