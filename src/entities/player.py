@@ -3,9 +3,9 @@ contains all the players types in the game
 '''
 
 from abc import ABC, abstractmethod
+import numpy as np
 from card import Card
 from deck import Deck
-import numpy as np
 
 
 class Player(ABC):
@@ -102,14 +102,14 @@ class Crupier(Player):
     def stand(self) -> None:
         pass
 
-    def hit(self, deck) -> None:
+    def hit(self, deck: Deck) -> None:
         pass
 
 
 class HumanPlayer(Player):
-    """
+    '''
     Class that represents a human player of a blackjack game.
-    """
+    '''
 
     def __init__(self):
         super().__init__()
@@ -135,20 +135,45 @@ class AiPlayer(Player):
 
     def __init__(self):
         super().__init__()
-        NUM_OF_ACTIONS = 2  # Hit or stand
-        NUM_OF_STATES = 21  # Maximum hand value. If has more, already lost.
+        self.NUM_ACTIONS = 2  # Hit or stand
+        self.NUM_STATES = 21  # Max hand value. If greater, already lost.
         # Matrix with all possible (action, hand_value) pairs.
-        qtable = np.zeros((NUM_OF_ACTIONS, NUM_OF_STATES), np.int8)
+        self.qtable = np.zeros((self.NUM_ACTIONS, self.NUM_STATES), np.int8)
+        self.LEARNING_RATE = 0.75
+        self.DISCOUNT_FACTOR = 0.75
+        self.EXPLORATION_PROBABILITY = 0.25
 
     def make_move(self) -> None:
+        '''
+        Player chooses what to do on their turn.
+        '''
+
         pass
 
     def stand(self) -> None:
+        '''
+        Player chooses to stand and end their turn.
+        '''
+
         pass
 
     def hit(self, deck: Deck) -> None:
+        '''
+        Adds a card to the player's hand.
+        '''
+
         if len(deck) == 0:
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
         self.add_card_to_hand(deck.get_random_card())
+
+    def __show_qtable(self) -> None:
+        '''
+        Prints the qtable. For testing only.
+        '''
+
+        for i in range(self.NUM_ACTIONS):
+            for j in range(self.NUM_STATES):
+                print(self.qtable[i][j], end=' ')
+            print()
