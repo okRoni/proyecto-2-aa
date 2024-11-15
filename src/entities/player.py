@@ -114,7 +114,7 @@ class HumanPlayer(Player):
     def __init__(self):
         super().__init__()
 
-    def make_move(self) -> None:
+    def make_move(self, deck: Deck) -> None:
         pass
 
     def stand(self) -> None:
@@ -154,19 +154,8 @@ class AiPlayer(Player):
         Player chooses what to do on their turn.
         '''
 
-        # Available actions: hit (0), stand (1).
-        action: int = 0  # Just as default value.
         state: int = self.get_hand_value()
-        self.prev_hand_value = state  # For testing purposes.
-        if np.random.rand() < self.EXPLORATION_PROBABILITY:
-            # Decides to hit or stand randomly.
-            action = np.random.randint(0, 2)  # Returns 0 or 1.
-        else:
-            # Decides to hit or stand based on the best Q-Value.
-            hit_qvalue = self.qtable[state][0]
-            stand_qvalue = self.qtable[state][1]
-            action = 0 if hit_qvalue > stand_qvalue else 1
-
+        action: int = self.get_ql_action(state)
         if action == 0:
             self.standing = False
             self.hit(deck)
@@ -175,17 +164,7 @@ class AiPlayer(Player):
             self.stand()
 
         next_state = self.get_hand_value()
-        reward = 0
-        if next_state == 21:
-            reward = 1
-        elif next_state > 21:
-            reward = -0.25
-        elif next_state < 21:
-            if next_state > state:
-                reward = 0.25
-            else:
-                reward = 0
-
+        reward = self.get_reward(state, next_state)
         self.update_qvalue(state, next_state, action, reward)
 
     def stand(self) -> None:
@@ -223,6 +202,42 @@ class AiPlayer(Player):
             + lr * (reward + df * best_next_state_qv - curr_state_qv)
         self.qtable[current_state][action] = new_curr_state_qv
 
+    def get_ql_action(self, state: int) -> int:
+        '''
+        Decides if hit or stand based on the current qtable.
+        '''
+
+        # Available actions: hit (0), stand (1).
+        action: int = 0  # Just as default value.
+        self.prev_hand_value = state  # For testing purposes.
+        if np.random.rand() < self.EXPLORATION_PROBABILITY:
+            # Decides to hit or stand randomly.
+            action = np.random.randint(0, 2)  # Returns 0 or 1.
+        else:
+            # Decides to hit or stand based on the best Q-Value.
+            hit_qvalue = self.qtable[state][0]
+            stand_qvalue = self.qtable[state][1]
+            action = 0 if hit_qvalue > stand_qvalue else 1
+
+        return action
+
+    def get_reward(self, state: int, next_state: int) -> float:
+        '''
+        Returns the corresponding reward based on a state change.
+        '''
+
+        reward: float = 0
+        if next_state == 21:
+            reward = 1
+        elif next_state > 21:
+            reward = -0.25
+        elif next_state < 21:
+            if next_state > state:
+                reward = 0.25
+            else:
+                reward = 0
+        return reward
+
     def show_qtable(self) -> None:
         '''
         Prints the qtable. For testing only.
@@ -236,6 +251,7 @@ class AiPlayer(Player):
                 rounded_value = f'{t_qtable[i][j]:.2f}'
                 print(f'{rounded_value:5}', end=' ')
             print()
+
 
 if __name__ == '__main__':
 
