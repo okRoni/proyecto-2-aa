@@ -135,13 +135,19 @@ class AiPlayer(Player):
 
     def __init__(self):
         super().__init__()
+
         # Matrix with all possible (state, action) pairs.
-        # Has dimensions 22x2, 22 states (hand values) and 2 actions.
+        # Has dimensions 32x2, 32 states (hand values) and 2 actions.
         # Column 0 is hit and column 1 is stand.
-        self.qtable = np.zeros((22, 2), np.int16)
+        # Has 32 possible states because the worst hand possible is reached
+        # by having 20, hitting and getting an ace (11). That adds up to 31.
+        # 1 extra state is added to count the 0 state (empty hand).
+        self.qtable = np.zeros((32, 2))
+
         self.LEARNING_RATE = 0.75
         self.DISCOUNT_FACTOR = 0.75
         self.EXPLORATION_PROBABILITY = 0.25
+        self.prev_hand_value = 0  # Just for testing purposes.
 
     def make_move(self, deck: Deck) -> None:
         '''
@@ -151,6 +157,7 @@ class AiPlayer(Player):
         # Available actions: hit (0), stand (1).
         action: int = 0  # Just as default value.
         state: int = self.get_hand_value()
+        self.prev_hand_value = state  # For testing purposes.
         if np.random.rand() < self.EXPLORATION_PROBABILITY:
             # Decides to hit or stand randomly.
             action = np.random.randint(0, 2)  # Returns 0 or 1.
@@ -170,21 +177,16 @@ class AiPlayer(Player):
         next_state = self.get_hand_value()
         reward = 0
         if next_state == 21:
-            if len(self.get_hand()) == 2:
-                # Big reward if got blackjack.
-                reward = 10
-            else:
-                # Not so big reward if got a 21 but isn't blackjack.
-                reward = 5
-        elif next_state > state and next_state < 22:
-            # Small reward if got closer to 21 without exceeding it.
             reward = 1
-        else:
-            # No! Bad AI! *slaps him/her*
-            reward = -10
+        elif next_state > 21:
+            reward = -0.25
+        elif next_state < 21:
+            if next_state > state:
+                reward = 0.25
+            else:
+                reward = 0
 
-        if next_state <= 21:
-            self.update_qvalue(state, next_state, action, reward)
+        self.update_qvalue(state, next_state, action, reward)
 
     def stand(self) -> None:
         '''
@@ -205,7 +207,7 @@ class AiPlayer(Player):
         self.add_card_to_hand(deck.get_random_card())
 
     def update_qvalue(
-        self, current_state: int, next_state: int, action: int, reward: int
+        self, current_state: int, next_state: int, action: int, reward: float
     ) -> None:
         '''
         Updates the qvalue in the given context.
@@ -214,7 +216,7 @@ class AiPlayer(Player):
         lr = self.LEARNING_RATE
         df = self.DISCOUNT_FACTOR
 
-        curr_state_qv = self.qtable[current_state][action]  # previous qvalue
+        curr_state_qv = self.qtable[current_state][action]
         best_next_state_qv = np.max(self.qtable[next_state])
         new_curr_state_qv = \
             curr_state_qv \
@@ -226,32 +228,44 @@ class AiPlayer(Player):
         Prints the qtable. For testing only.
         '''
 
-        # self.qtable has 22 rows and 2 columns.
+        # self.qtable has 32 rows and 2 columns.
         # Its transpose is shown just to fit better in screen.
         t_qtable = np.transpose(self.qtable)
         for i in range(2):
-            for j in range(22):
-                print(f'{t_qtable[i][j]:2}', end=' ')
+            for j in range(22):  # After the 21st row there are just zeros.
+                rounded_value = f'{t_qtable[i][j]:.2f}'
+                print(f'{rounded_value:5}', end=' ')
             print()
 
 
 deck = Deck()
 ai = AiPlayer()
 
-for i in range(5):
-    print(f'round {i}:')
-    for _ in range(21):
+for i in range(1000):
+    # print(f'round {i}:')
+    done = False
+    while not done:
         ai.make_move(deck)
         if ai.is_busted():
-            print('busted')
-            break
+            # print('busted')
+            done = True
         elif ai.is_blackjack():
-            print('21 BJ')
-            break
+            print('21 BJ on round', i)
+            done = True
         elif ai.get_hand_value() == 21:
-            print('21 not BJ')
+            # print('21 not BJ on round', i)
+            done = True
+        elif ai.is_standing():
+            # print('standing')
+            # done = True
+            pass
         else:
-            print(f'curr: {ai.get_hand_value()}')
+            p = ai.prev_hand_value
+            s = 'stand' if ai.is_standing() else 'hit'
+            # print(f'curr: {ai.get_hand_value()}. Was in {p} and {s}.')
+
     ai.reset()
     deck.reset()
-    print()
+    # print()
+
+ai.show_qtable()
