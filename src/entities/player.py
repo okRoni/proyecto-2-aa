@@ -16,7 +16,7 @@ class Player(ABC):
         self.busted: bool = False
 
     @abstractmethod
-    def make_move(self) -> None:
+    def make_move(self, deck: Deck) -> None:
         '''
         Player chooses what to do on their turn
         '''
@@ -135,32 +135,54 @@ class AiPlayer(Player):
 
     def __init__(self):
         super().__init__()
-        # Matrix with all possible (action, state) pairs.
-        # Has dimensions 2x22, 2 actions and 22 possible states (hand values).
-        self.qtable = np.zeros((2, 22), np.int8)
+        # Matrix with all possible (state, action) pairs.
+        # Has dimensions 22x2, 22 states (hand values) and 2 actions.
+        # Column 0 is hit and column 1 is stand.
+        self.qtable = np.zeros((22, 2), np.int16)
         self.LEARNING_RATE = 0.75
         self.DISCOUNT_FACTOR = 0.75
         self.EXPLORATION_PROBABILITY = 0.25
 
-    def make_move(self) -> None:
+    def make_move(self, deck: Deck) -> None:
         '''
         Player chooses what to do on their turn.
         '''
 
-        # Available actions.
-        HIT = 0
-        STAND = 1
-        action: int = HIT  # Just as default value.
-        state = self.get_hand_value()
+        # Available actions: hit (0), stand (1).
+        action: int = 0  # Just as default value.
+        state: int = self.get_hand_value()
         if np.random.rand() < self.EXPLORATION_PROBABILITY:
             # Decides to hit or stand randomly.
             action = np.random.randint(0, 2)  # Returns 0 or 1.
         else:
             # Decides to hit or stand based on the best Q-Value.
-            hit_qvalue = self.qtable[HIT][state]
-            stand_qvalue = self.qtable[STAND][state]
-            action = max(hit_qvalue, stand_qvalue)
-        
+            hit_qvalue = self.qtable[state][0]
+            stand_qvalue = self.qtable[state][1]
+            action = 0 if hit_qvalue > stand_qvalue else 1
+
+        if action == 0:
+            self.standing = False
+            self.hit(deck)
+        else:
+            self.standing = True
+            self.stand()
+
+        next_state = self.get_hand_value()
+        reward = 0
+        if next_state == 21:
+            if len(self.get_hand()) == 2:
+                # Big reward if got blackjack.
+                reward = 10
+            else:
+                # Not so big reward if got a 21 but isn't blackjack.
+                reward = 5
+        elif next_state > state and next_state < 22:
+            # Small reward if got closer to 21 without exceeding it.
+            reward = 1
+        else:
+            # No! Bad AI! *slaps him/her*
+            reward = -10
+        self.update_qvalue(state, next_state, action, reward)
 
     def stand(self) -> None:
         '''
@@ -180,12 +202,30 @@ class AiPlayer(Player):
             return
         self.add_card_to_hand(deck.get_random_card())
 
+    def update_qvalue(
+        self, current_state: int, next_state: int, action: int, reward: int
+    ) -> None:
+        '''
+        Updates the qvalue in the given context.
+        '''
+
+        lr = self.LEARNING_RATE
+        df = self.DISCOUNT_FACTOR
+
+        curr_state_qv = self.qtable[current_state][action]  # previous qvalue
+        best_next_state_qv = np.max(self.qtable[next_state])
+        new_curr_state_qv = \
+            curr_state_qv \
+            + lr * (reward + df * best_next_state_qv - curr_state_qv)
+        self.qtable[current_state][action] = new_curr_state_qv
+
     def __show_qtable(self) -> None:
         '''
         Prints the qtable. For testing only.
         '''
 
-        for i in range(self.NUM_ACTIONS):
-            for j in range(self.NUM_STATES):
+        # self.qtable has 22 rows and 2 columns.
+        for i in range(22):
+            for j in range(2):
                 print(self.qtable[i][j], end=' ')
             print()
