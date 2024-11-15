@@ -73,7 +73,7 @@ class Deck:
         the card from unshown_cards to shown_cards.
         """
 
-        card_index = randint(0, len(self.unshown_cards))
+        card_index = randint(0, len(self.unshown_cards) - 1)
         try:
             card = self.unshown_cards[card_index]
             del self.unshown_cards[card_index]
@@ -83,7 +83,17 @@ class Deck:
         self.shown_cards.append(card)
         return card
 
-    def __len__(self):
+    def reset(self) -> None:
+        '''
+        Puts all cards in unshown_cards.
+        '''
+
+        self.unshown_cards += self.shown_cards
+        self.shown_cards = []
+        if len(self.unshown_cards) != 6 * 52:
+            print('Something strange happened. A card was stolen. See Deck.')
+
+    def __len__(self) -> int:
         """
         Returns the amount of unshown cards.
         """

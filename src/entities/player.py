@@ -80,7 +80,7 @@ class Player(ABC):
         Returns True if the player's hand value is 21
         '''
 
-        if self.get_hand_value() == 21:
+        if self.get_hand_value() == 21 and len(self.get_hand()) == 2:
             return True
         return False
 
@@ -182,7 +182,9 @@ class AiPlayer(Player):
         else:
             # No! Bad AI! *slaps him/her*
             reward = -10
-        self.update_qvalue(state, next_state, action, reward)
+
+        if next_state <= 21:
+            self.update_qvalue(state, next_state, action, reward)
 
     def stand(self) -> None:
         '''
@@ -219,13 +221,37 @@ class AiPlayer(Player):
             + lr * (reward + df * best_next_state_qv - curr_state_qv)
         self.qtable[current_state][action] = new_curr_state_qv
 
-    def __show_qtable(self) -> None:
+    def show_qtable(self) -> None:
         '''
         Prints the qtable. For testing only.
         '''
 
         # self.qtable has 22 rows and 2 columns.
-        for i in range(22):
-            for j in range(2):
-                print(self.qtable[i][j], end=' ')
+        # Its transpose is shown just to fit better in screen.
+        t_qtable = np.transpose(self.qtable)
+        for i in range(2):
+            for j in range(22):
+                print(f'{t_qtable[i][j]:2}', end=' ')
             print()
+
+
+deck = Deck()
+ai = AiPlayer()
+
+for i in range(5):
+    print(f'round {i}:')
+    for _ in range(21):
+        ai.make_move(deck)
+        if ai.is_busted():
+            print('busted')
+            break
+        elif ai.is_blackjack():
+            print('21 BJ')
+            break
+        elif ai.get_hand_value() == 21:
+            print('21 not BJ')
+        else:
+            print(f'curr: {ai.get_hand_value()}')
+    ai.reset()
+    deck.reset()
+    print()
