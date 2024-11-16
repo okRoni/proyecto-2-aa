@@ -5,12 +5,13 @@ from card import Card
 class Deck:
     """ Class that represents a deck of cards of a blackjack game. """
     
-    instance = None
+    instance = None # Shared instance of the deck (it works as our global variable)
 
     @staticmethod
     def getDeck():
         '''
-        Returns or creates a shared instance of the deck.
+        Returns the shared instance of the deck.
+        If the instance does not exist, it creates one.
         '''
         if Deck.instance == None:
             Deck.instance = Deck()

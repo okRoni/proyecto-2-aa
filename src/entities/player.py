@@ -109,6 +109,8 @@ class Crupier(Player):
     def make_move(self) -> None:
         if self.get_hand_value() < 17:
             self.hit(Deck.getDeck())
+        else:
+            self.stand()
 
     def stand(self) -> None:
         pass
@@ -117,7 +119,7 @@ class Crupier(Player):
         if len(deck) == 0:
             print('WARNING: Tried to hit with an empty deck. See Crupier.')
             return
-        self.add_card_to_hand(deck.get_random_card())
+        self.add_card_to_hand()
 
 
 class HumanPlayer(Player):
@@ -139,7 +141,7 @@ class HumanPlayer(Player):
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
-        self.add_card_to_hand(deck.get_random_card())
+        self.add_card_to_hand()
 
 
 class AiPlayer(Player):
