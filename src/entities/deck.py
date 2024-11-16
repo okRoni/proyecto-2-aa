@@ -4,6 +4,18 @@ from card import Card
 
 class Deck:
     """ Class that represents a deck of cards of a blackjack game. """
+    
+    instance = None
+
+    @staticmethod
+    def getDeck():
+        '''
+        Returns or creates a shared instance of the deck.
+        '''
+        if Deck.instance == None:
+            Deck.instance = Deck()
+        return Deck.instance
+        
 
     def __init__(self) -> None:
         # This list contains all 52 cards of a standard deck
