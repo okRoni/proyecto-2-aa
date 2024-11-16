@@ -121,6 +121,12 @@ class Crupier(Player):
             return
         self.add_card_to_hand()
 
+    def get_showing_card(self) -> Card:
+        '''
+        Returns the first card in the crupier's hand
+        '''
+        return self.hand[0]
+
 
 class HumanPlayer(Player):
     '''
@@ -147,6 +153,7 @@ class HumanPlayer(Player):
 class AiPlayer(Player):
     '''
     Class that represents an AI player of a blackjack game.
+    It uses Q-Learning and Probalistic Algorithms to make decisions.
     '''
 
     def __init__(self):
@@ -159,11 +166,15 @@ class AiPlayer(Player):
         # by having 20, hitting and getting an ace (11). That adds up to 31.
         # 1 extra state is added to count the 0 state (empty hand).
         self.qtable = np.zeros((32, 2))
-
         self.LEARNING_RATE = 0.75
         self.DISCOUNT_FACTOR = 0.75
         self.EXPLORATION_PROBABILITY = 0.25
         self.prev_hand_value = 0  # Just for testing purposes.
+
+        # Prob algorithm variables
+        self.crupier : Crupier = None
+        self.hit_probability = 0.0
+
 
     def make_move(self) -> None:
         '''
@@ -267,6 +278,19 @@ class AiPlayer(Player):
                 rounded_value = f'{t_qtable[i][j]:.2f}'
                 print(f'{rounded_value:5}', end=' ')
             print()
+
+    def calculate_hit_probability(self) -> None:
+        '''
+        Calculates the probability of getting a card that doesn't make the
+        player go over 21.
+        '''
+
+        deck = Deck.getDeck()
+        available_cards = 0
+        for card in deck.unshown_cards:
+            if self.get_hand_value() + card.value <= 21:
+                available_cards += 1
+        self.hit_probability = available_cards / len(deck.unshown_cards)
 
 
 if __name__ == '__main__':
