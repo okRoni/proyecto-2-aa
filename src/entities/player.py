@@ -326,10 +326,11 @@ class AiPlayer(Player):
         hit_safe_probability = 0.0
 
         # Simulate the player's move
-        card = player_copy.add_card_to_hand()
+        card = deck.get_random_card()
+        player_copy.hand.append(card)
         if player_copy.is_busted():
             hit_safe_probability = 0.0
-        elif player_copy.is_blackjack():
+        else:
             hit_safe_probability = 1.0
 
         return hit_safe_probability
