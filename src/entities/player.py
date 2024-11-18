@@ -221,9 +221,11 @@ class AiPlayer(Player):
         state: int = self.get_hand_value()
         action: int = self.get_ql_action(state)
         if action == 0:
+            print('Hitting...')
             self.standing = False
             self.hit()
         else:
+            print('Standing...')
             self.standing = True
             self.stand()
 
