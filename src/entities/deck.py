@@ -8,7 +8,7 @@ class Deck:
     instance = None # Shared instance of the deck (it works as our global variable)
 
     @staticmethod
-    def getDeck():
+    def getDeck() -> 'Deck':
         '''
         Returns the shared instance of the deck.
         If the instance does not exist, it creates one.
@@ -95,6 +95,16 @@ class Deck:
 
         self.shown_cards.append(card)
         return card
+    
+    def get_cards_left_of_value(self, value: int) -> int:
+        """
+        Returns the amount of cards left in the deck with a certain value.
+        """
+        amount = 0
+        for card in self.unshown_cards:
+            if card.value == value:
+                amount += 1
+        return amount
 
     def reset(self) -> None:
         '''
@@ -105,6 +115,16 @@ class Deck:
         self.shown_cards = []
         if len(self.unshown_cards) != 6 * 52:
             print('Something strange happened. A card was stolen. See Deck.')
+
+    def copy(self) -> 'Deck':
+        '''
+        Returns a copy of the deck.
+        '''
+
+        deck = Deck()
+        deck.unshown_cards = self.unshown_cards.copy()
+        deck.shown_cards = self.shown_cards.copy()
+        return deck
 
     def __len__(self) -> int:
         """

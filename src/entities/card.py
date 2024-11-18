@@ -5,3 +5,6 @@ class Card:
         self.value = value
         self.filename = filename
         self.color = color  # Color 0: black. Color 1: red.
+
+    def __str__(self) -> str:
+        return f'{self.value}'

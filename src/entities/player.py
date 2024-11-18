@@ -16,7 +16,7 @@ class Player(ABC):
         self.busted: bool = False
 
     @abstractmethod
-    def make_move(self, deck: Deck) -> None:
+    def make_move(self) -> None:
         '''
         Player chooses what to do on their turn
         '''
@@ -49,7 +49,7 @@ class Player(ABC):
             hand_value += card.value
         return hand_value
 
-    def add_card_to_hand(self) -> None:
+    def add_card_to_hand(self) -> Card:
         '''
         Adds a card to the player's hand from the deck instance.
         It returns the card added to the hand.
@@ -100,6 +100,17 @@ class Player(ABC):
         '''
 
         return self.standing
+    
+    @abstractmethod
+    def copy(self) -> 'Player':
+        '''
+        Returns a copy of the player.
+        '''
+        
+        pass
+
+    def __str__(self) -> str:
+        return f'Hand ({self.get_hand_value()}): {self.hand}'
 
 
 class Crupier(Player):
@@ -126,6 +137,16 @@ class Crupier(Player):
         Returns the first card in the crupier's hand
         '''
         return self.hand[0]
+    
+    def copy(self) -> 'Crupier':
+        '''
+        Returns a copy of the crupier.
+        '''
+        crupier = Crupier()
+        crupier.hand = self.hand.copy()
+        crupier.standing = self.standing
+        crupier.busted = self.busted
+        return crupier
 
 
 class HumanPlayer(Player):
@@ -136,7 +157,7 @@ class HumanPlayer(Player):
     def __init__(self):
         super().__init__()
 
-    def make_move(self, deck: Deck) -> None:
+    def make_move(self) -> None:
         pass
 
     def stand(self) -> None:
@@ -148,6 +169,17 @@ class HumanPlayer(Player):
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
         self.add_card_to_hand()
+
+    def copy(self) -> 'HumanPlayer':
+        '''
+        Returns a copy of the player.
+        '''
+
+        player = HumanPlayer()
+        player.hand = self.hand.copy()
+        player.standing = self.standing
+        player.busted = self.busted
+        return player
 
 
 class AiPlayer(Player):
@@ -175,18 +207,43 @@ class AiPlayer(Player):
         self.crupier : Crupier = None
         self.hit_probability = 0.0
 
+        self.ql_weight = 0.4
+        self.prob_weight = 0.6
+
 
     def make_move(self) -> None:
         '''
         Player chooses what to do on their turn.
         '''
 
+        print('------------------')
+        print('Player hand:', self.get_hand_value())
+        print('Hit safe probability:', self.calculate_hit_probability())
+        print('------------------')
+
         state: int = self.get_hand_value()
-        action: int = self.get_ql_action(state)
+        ql_action: int = self.get_ql_action(state)
+        prob_action = self.get_prob_action()
+
+        action = 0
+
+        if ql_action == 0 and prob_action == 0:
+            action = 0
+        elif ql_action == 1 and prob_action == 1:
+            action = 1
+        else:
+            random_number = np.random.rand()
+            if random_number < self.ql_weight:
+                action = ql_action
+            else:
+                action = prob_action
+
         if action == 0:
+            print('Hitting...')
             self.standing = False
             self.hit()
         else:
+            print('Standing...')
             self.standing = True
             self.stand()
 
@@ -211,6 +268,19 @@ class AiPlayer(Player):
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
         self.add_card_to_hand()
+
+    def copy(self) -> 'AiPlayer':
+        '''
+        Returns a copy of the player.
+        '''
+
+        player = AiPlayer()
+        player.hand = self.hand.copy()
+        player.standing = self.standing
+        player.busted = self.busted
+        player.qtable = self.qtable.copy()
+        player.prev_hand_value = self.prev_hand_value
+        return player
 
     def update_qvalue(
         self, current_state: int, next_state: int, action: int, reward: float
@@ -279,18 +349,68 @@ class AiPlayer(Player):
                 print(f'{rounded_value:5}', end=' ')
             print()
 
-    def calculate_hit_probability(self) -> None:
+    def calculate_hit_probability(self) -> float:
         '''
-        Calculates the probability of getting a card that doesn't make the
-        player go over 21.
+        Calculates how safe is to hit based on the current state.
+        '''
+        hit_safe_probability = 0.0
+
+        # Simulate the player's move
+        simulation_results = self.simulate_multiple_moves()
+        hit_safe_probability = sum(simulation_results) / len(simulation_results)
+
+        return hit_safe_probability
+
+    def simulate_multiple_moves(self) -> list[float]:
+        '''
+        Simulates the next move of the player in multiple cases.
+        Returns a list with the probability of hitting safely in each case.
+        '''
+        SIMULATION_ROUNDS : int = 1000
+        round_probabilities = []
+
+        for i in range(SIMULATION_ROUNDS):
+            # Simulate a round
+            round_probabilities.append(self.simulate_move())
+
+        return round_probabilities
+
+    def simulate_move(self) -> float:
+        '''
+        Simulates a move of the player based on the current state.
+        Returns the probability of hitting safely.
+        '''
+        deck_copy = Deck.getDeck().copy()
+        player_copy = self.copy()
+        # crupier_copy = self.crupier.copy()
+        hit_safe_probability = 0.0
+
+        # Simulate the player's move
+        card = deck_copy.get_random_card()
+        player_copy.hand.append(card)
+        if player_copy.is_busted():
+            hit_safe_probability = 0.0
+        else:
+            hit_safe_probability = 1.0
+
+        return hit_safe_probability
+    
+    def get_prob_action(self) -> int:
+        '''
+        Decides if hit or stand based on the current qtable.
         '''
 
-        deck = Deck.getDeck()
-        available_cards = 0
-        for card in deck.unshown_cards:
-            if self.get_hand_value() + card.value <= 21:
-                available_cards += 1
-        self.hit_probability = available_cards / len(deck.unshown_cards)
+        # Available actions: hit (0), stand (1).
+        action: int = 0
+
+        hit_safe_probability = self.calculate_hit_probability()
+        if hit_safe_probability > 0.6:
+            action = 0
+        else:
+            action = 1
+
+        return action
+
 
 
 if __name__ == '__main__':
@@ -303,23 +423,23 @@ if __name__ == '__main__':
         # the game starts with 2 cards
         ai.add_card_to_hand()
         ai.add_card_to_hand()
+        print('\n')
         print('starting with', ai.get_hand_value())
         done = False
         while not done:
             ai.make_move()
             if ai.is_busted():
-                # print('busted')
+                print('busted')
                 done = True
             elif ai.is_blackjack():
                 print('21 BJ on round', i)
                 done = True
             elif ai.get_hand_value() == 21:
-                # print('21 not BJ on round', i)
+                print('21 not BJ on round', i)
                 done = True
             elif ai.is_standing():
-                # print('standing')
-                # done = True
-                pass
+                print('standing')
+                done = True
             else:
                 p = ai.prev_hand_value
                 s = 'stand' if ai.is_standing() else 'hit'
