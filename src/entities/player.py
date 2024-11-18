@@ -49,8 +49,18 @@ class Player(ABC):
             hand_value += card.value
         return hand_value
 
-    def add_card_to_hand(self, card: Card) -> None:
+    def add_card_to_hand(self) -> None:
+        '''
+        Adds a card to the player's hand from the deck instance.
+        It returns the card added to the hand.
+        '''
+        deck : Deck = Deck.getDeck()
+        if len(deck) == 0:
+            print('WARNING: Tried to add card to hand with an empty deck. See Player.')
+            return
+        card = deck.get_random_card()
         self.hand.append(card)
+        return card
 
     def reset(self) -> None:
         '''
@@ -97,13 +107,25 @@ class Crupier(Player):
         super().__init__()
 
     def make_move(self) -> None:
-        pass
+        if self.get_hand_value() < 17:
+            self.hit(Deck.getDeck())
+        else:
+            self.stand()
 
     def stand(self) -> None:
         pass
 
     def hit(self, deck: Deck) -> None:
-        pass
+        if len(deck) == 0:
+            print('WARNING: Tried to hit with an empty deck. See Crupier.')
+            return
+        self.add_card_to_hand()
+
+    def get_showing_card(self) -> Card:
+        '''
+        Returns the first card in the crupier's hand
+        '''
+        return self.hand[0]
 
 
 class HumanPlayer(Player):
@@ -125,12 +147,13 @@ class HumanPlayer(Player):
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
-        self.add_card_to_hand(deck.get_random_card())
+        self.add_card_to_hand()
 
 
 class AiPlayer(Player):
     '''
     Class that represents an AI player of a blackjack game.
+    It uses Q-Learning and Probalistic Algorithms to make decisions.
     '''
 
     def __init__(self):
@@ -143,13 +166,17 @@ class AiPlayer(Player):
         # by having 20, hitting and getting an ace (11). That adds up to 31.
         # 1 extra state is added to count the 0 state (empty hand).
         self.qtable = np.zeros((32, 2))
-
         self.LEARNING_RATE = 0.75
         self.DISCOUNT_FACTOR = 0.75
         self.EXPLORATION_PROBABILITY = 0.25
         self.prev_hand_value = 0  # Just for testing purposes.
 
-    def make_move(self, deck: Deck) -> None:
+        # Prob algorithm variables
+        self.crupier : Crupier = None
+        self.hit_probability = 0.0
+
+
+    def make_move(self) -> None:
         '''
         Player chooses what to do on their turn.
         '''
@@ -158,7 +185,7 @@ class AiPlayer(Player):
         action: int = self.get_ql_action(state)
         if action == 0:
             self.standing = False
-            self.hit(deck)
+            self.hit()
         else:
             self.standing = True
             self.stand()
@@ -174,7 +201,7 @@ class AiPlayer(Player):
 
         pass
 
-    def hit(self, deck: Deck) -> None:
+    def hit(self) -> None:
         '''
         Adds a card to the player's hand.
         '''
@@ -183,7 +210,7 @@ class AiPlayer(Player):
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
             return
-        self.add_card_to_hand(deck.get_random_card())
+        self.add_card_to_hand()
 
     def update_qvalue(
         self, current_state: int, next_state: int, action: int, reward: float
@@ -252,17 +279,34 @@ class AiPlayer(Player):
                 print(f'{rounded_value:5}', end=' ')
             print()
 
+    def calculate_hit_probability(self) -> None:
+        '''
+        Calculates the probability of getting a card that doesn't make the
+        player go over 21.
+        '''
+
+        deck = Deck.getDeck()
+        available_cards = 0
+        for card in deck.unshown_cards:
+            if self.get_hand_value() + card.value <= 21:
+                available_cards += 1
+        self.hit_probability = available_cards / len(deck.unshown_cards)
+
 
 if __name__ == '__main__':
 
-    deck = Deck()
+    deck = Deck.getDeck() # Initialize the deck and save the reference
     ai = AiPlayer()
 
     for i in range(20):
         # print(f'round {i}:')
+        # the game starts with 2 cards
+        ai.add_card_to_hand()
+        ai.add_card_to_hand()
+        print('starting with', ai.get_hand_value())
         done = False
         while not done:
-            ai.make_move(deck)
+            ai.make_move()
             if ai.is_busted():
                 # print('busted')
                 done = True
