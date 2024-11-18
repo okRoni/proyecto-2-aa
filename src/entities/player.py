@@ -157,7 +157,7 @@ class HumanPlayer(Player):
     def __init__(self):
         super().__init__()
 
-    def make_move(self, deck: Deck) -> None:
+    def make_move(self) -> None:
         pass
 
     def stand(self) -> None:
@@ -207,6 +207,9 @@ class AiPlayer(Player):
         self.crupier : Crupier = None
         self.hit_probability = 0.0
 
+        self.ql_weight = 0.4
+        self.prob_weight = 0.6
+
 
     def make_move(self) -> None:
         '''
@@ -219,7 +222,22 @@ class AiPlayer(Player):
         print('------------------')
 
         state: int = self.get_hand_value()
-        action: int = self.get_ql_action(state)
+        ql_action: int = self.get_ql_action(state)
+        prob_action = self.get_prob_action()
+
+        action = 0
+
+        if ql_action == 0 and prob_action == 0:
+            action = 0
+        elif ql_action == 1 and prob_action == 1:
+            action = 1
+        else:
+            random_number = np.random.rand()
+            if random_number < self.ql_weight:
+                action = ql_action
+            else:
+                action = prob_action
+
         if action == 0:
             print('Hitting...')
             self.standing = False
@@ -376,6 +394,23 @@ class AiPlayer(Player):
             hit_safe_probability = 1.0
 
         return hit_safe_probability
+    
+    def get_prob_action(self) -> int:
+        '''
+        Decides if hit or stand based on the current qtable.
+        '''
+
+        # Available actions: hit (0), stand (1).
+        action: int = 0
+
+        hit_safe_probability = self.calculate_hit_probability()
+        if hit_safe_probability > 0.6:
+            action = 0
+        else:
+            action = 1
+
+        return action
+
 
 
 if __name__ == '__main__':
