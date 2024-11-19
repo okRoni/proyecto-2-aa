@@ -7,6 +7,12 @@ export default class Player {
         ai2: 'ai2',
     }
 
+    /**
+     * Get a player by its position
+     * @param {string} position player position
+     * @returns {Player}
+     * @static
+     */
     static getPlayer(position) {
         return Player.players.find(player => player.position === position);
     }
@@ -43,7 +49,12 @@ export default class Player {
         const playerContainer = document.getElementById(this.position);
         playerContainer.innerHTML = `
             <div class="player-info">
-                <div class="player-name">${this.name}</div>
+                <div class="player-name">
+                    ${this.name}
+                    <span class="player-status">
+                        ${this.busted ? 'Busted!' : this.standing ? 'Standing..' : ''}
+                    </span>
+                </div>
                 <div class="player-score">${this.handValue}</div>
             </div>
             <div class="player-hand"></div>
@@ -105,6 +116,10 @@ export default class Player {
         return document.querySelector(`#${this.position} .${className}`);
     }
 
+    /**
+     * Update the player attributes with the data received
+     * @param {Object} data data in format `{ hand, handValue, busted, standing }`
+     */
     updateData(data) {
         this.hand = data.hand;
         this.handValue = data.handValue;

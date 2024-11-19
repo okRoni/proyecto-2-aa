@@ -47,7 +47,6 @@ body {
     flex-direction: column;
     width: 280px;
     height: 160px;
-    position: relative;
     border-radius: 10px;
     justify-content: center;
     color: white;
@@ -130,6 +129,20 @@ body {
     font-size: 1em;
     font-weight: bold;
 }
+
+.player-status {
+    color: rgb(101, 255, 122);
+    font-size: 0.7em;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 400px;
+    height: 100px;
+}
+
 
 .buttons button {
     width: 100px;
