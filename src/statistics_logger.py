@@ -18,17 +18,22 @@ class Game:
     '''
 
     def __init__(self) -> None:
-        self.croupier_moves: list[str] = []
-        self.ai1_moves: list[str] = []
-        self.ai2_moves: list[str] = []
-        self.human_moves: list[str] = []
+        # These lists store the moves made by each player and the hand value
+        # obtained next to the move. For example, if ai1 hits and gets
+        # 10, then stands, then hits and gets 7, it will look like
+        # ['H', 10, 'S', 10, 'H', 17]. The same for the other players.
+        # Note that this stores the cumulative sum instead of each card value.
+        self.croupier_moves: list[str | int] = []
+        self.ai1_moves: list[str | int] = []
+        self.ai2_moves: list[str | int] = []
+        self.human_moves: list[str | int] = []
         self.winner: str = ''
 
 
 class StatisticsLogger:
     '''
     Holds a record of all games and saves it to static/games.json when the app
-    is closed.
+    is closed. Also, offers useful statistics about the game.
     '''
 
     def __init__(self) -> None:
@@ -57,7 +62,7 @@ class StatisticsLogger:
         Appends the current game in the games list.
         '''
 
-        game_dict: dict[str, list[str] | str] = {
+        game_dict: dict[str, Any] = {
             'croupier_moves': self.current_game.croupier_moves,
             'ai1_moves': self.current_game.ai1_moves,
             'ai2_moves': self.current_game.ai2_moves,
@@ -67,10 +72,15 @@ class StatisticsLogger:
         self.games.append(game_dict)
         self.current_game = Game()
 
-    def log_move(self, entity: str, move: str) -> None:
+    def log_move(self, entity: str, move: str, new_hand_value: int) -> None:
         '''
-        Logs the specified move of the specified entity in the current game.
+        Logs the specified move and new hand value of the specified entity
+        in the current game.
         '''
+
+        if new_hand_value < 0:
+            print('WARNING: Tried to log a negative hand value in log_move.')
+            return
 
         if move not in ['H', 'S']:
             print(f'WARNING: Unknown move found in log_move ({move}).')
@@ -78,13 +88,13 @@ class StatisticsLogger:
 
         match entity:
             case 'croupier':
-                self.current_game.croupier_moves.append(move)
+                self.current_game.croupier_moves += [move, new_hand_value]
             case 'ai1':
-                self.current_game.ai1_moves.append(move)
+                self.current_game.ai1_moves += [move, new_hand_value]
             case 'ai2':
-                self.current_game.ai2_moves.append(move)
+                self.current_game.ai2_moves += [move, new_hand_value]
             case 'human':
-                self.current_game.human_moves.append(move)
+                self.current_game.human_moves += [move, new_hand_value]
             case _:
                 print(f'WARNING: Unknown entity found in log_move ({entity}).')
 
@@ -93,22 +103,100 @@ class StatisticsLogger:
         Logs the specified winner in the current game.
         '''
 
+        if winner not in ['croupier', 'ai1', 'ai2', 'human']:
+            print(f'WARNING: Unknown entity found in log_winner ({winner}).')
+            return
         self.current_game.winner = winner
+
+    def get_win_percentage(self) -> list[float]:
+        '''
+        Returns the percentage of win per player.
+        Order: Croupier, ai1, ai2, human.
+        '''
+
+        total_games: int = len(self.games)
+        # This is needed because otherwise a division by zero will be
+        # performed at the end of the function.
+        if total_games == 0:
+            return [0, 0, 0, 0]
+        total_wins: list[float] = [0, 0, 0, 0]  # Total wins per player.
+        for game in self.games:
+            match game['winner']:
+                case 'croupier':
+                    total_wins[0] += 1
+                case 'ai1':
+                    total_wins[1] += 1
+                case 'ai2':
+                    total_wins[2] += 1
+                case 'human':
+                    total_wins[3] += 1
+                case _:
+                    pass
+        return [i / total_games for i in total_wins]
+
+    def get_success_percentage(self) -> list[float]:
+        '''
+        Returns the percentage of right decisions made per player.
+        A bad decision is hitting and getting above 21 or standing bellow
+        17 (by probability, is bad to stand bellow 17). Anything else is
+        considered a good decision.
+        Order: Croupier, ai1, ai2, human.
+        '''
+
+        def get_bad_decisions(moves_list: list[Any]) -> int:
+            bad_decisions: int = 0
+            # A bad decision is hitting and getting above 21 or standing below
+            # 17. This loop looks for situations like that.
+            for i in range(0, len(moves_list), 2):
+                hit: bool = moves_list[i] == 'H'
+                hand_value: int = moves_list[i + 1]
+                if hit and hand_value > 21 or not hit and hand_value < 17:
+                    bad_decisions += 1
+            return bad_decisions
+
+        # Total decisions and bad decisions per player.
+        total_decisions: list[int] = [0, 0, 0, 0]
+        bad_decisions: list[int] = [0, 0, 0, 0]
+
+        for game in self.games:
+            # Each moves list contains the move and the new hand value.
+            # For example, game['ai1'] may contain ['H', 4, 'S', 9]. So, the
+            # amount of decisions is the length of that list divided by 2.
+            total_decisions[0] += len(game['croupier_moves']) // 2
+            total_decisions[1] += len(game['ai1_moves']) // 2
+            total_decisions[2] += len(game['ai2_moves']) // 2
+            total_decisions[3] += len(game['human_moves']) // 2
+
+            bad_decisions[0] += get_bad_decisions(game['croupier_moves'])
+            bad_decisions[1] += get_bad_decisions(game['ai1_moves'])
+            bad_decisions[2] += get_bad_decisions(game['ai2_moves'])
+            bad_decisions[3] += get_bad_decisions(game['human_moves'])
+
+        success_percentages: list[float] = []
+        for i in range(4):
+            # 100 * bad / total gives the percentage of bad decisions.
+            # Therefore, 1 - 100 * bad / total gives the percentage of success.
+            success_percentages.append(
+                1 - 100 * bad_decisions[i] / total_decisions[i]
+            )
+        return success_percentages
 
 
 if __name__ == '__main__':
     logger = StatisticsLogger()
-    logger.log_move('croupier', 'S')
-    logger.log_move('ai1', 'H')
-    logger.log_move('ai2', 'S')
-    logger.log_move('human', 'H')
 
-    logger.log_move('croupier', 'S')
-    logger.log_move('ai1', 'H')
-    logger.log_move('ai2', 'S')
-    logger.log_move('human', 'H')
+    logger.log_move('croupier', 'H', 10)
+    logger.log_move('ai1', 'H', 9)
+    logger.log_move('ai2', 'H', 8)
+    logger.log_move('human', 'H', 7)
 
-    logger.log_winner('human')
+    logger.log_move('croupier', 'H', 17)
+    logger.log_move('ai1', 'H', 19)
+    logger.log_move('ai2', 'H', 16)
+    logger.log_move('human', 'S', 7)
+
+    logger.log_winner('ai1')
     logger.add_current_game()
     logger.store_data()
 
+    print(logger.get_success_percentage())
