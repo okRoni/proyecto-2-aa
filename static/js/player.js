@@ -67,7 +67,7 @@ export default class Player {
         const cardElement = document.createElement('img');
         cardElement.src = `../static/deck_scans/${card.fileName}`;
         cardElement.classList.add('card-img');
-        handElement.appendChild(cardElement);
+        cardContainer.appendChild(cardElement);
     }
 
     /**

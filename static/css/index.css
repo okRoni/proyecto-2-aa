@@ -1,7 +1,8 @@
 body {
-    --table-color: #185225;
+    --background-color: #1d2720;
+    --table-color: #2e683f;
 
-    background-color: var(--table-color);
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,11 +15,12 @@ body {
     width: 80%;
     height: 80%;
     background-color: var(--table-color);
-    border-radius: 20px;
+    border-radius: 50px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 20px;
+    border: 10px solid #4d4d4d;
 }
 
 .table {
@@ -40,12 +42,10 @@ body {
 }
 
 .player {
-    display: flex;
     flex-direction: column;
     width: 280px;
     height: 160px;
     position: relative;
-    background-color: #236e4b;
     border-radius: 10px;
     justify-content: center;
     color: white;
@@ -77,41 +77,48 @@ body {
     right: 0;
 }
 
-.hand {
+.player-hand {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: absolute;
-    justify-content: space-around;
-    align-items: center;
-    height: 100%;
     position: relative;
+    flex-wrap: nowrap;
+    height: fit-content;
+    width: 100%;
 }
 
 .card-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    height: 100%;
+    width: fit-content;
+    margin-right: -50px;
+}
+
+.card-container:last-child {
+    margin-right: 0;
 }
 
 .card-img {
     width: 80px;
     height: 120px;
-    margin: 0 5px;
 }
 
 .player-info {
     display: flex;
-    padding: 4px;
-    width: 100%;
-    height: fit-content;
     justify-content: space-between;
     align-items: center;
+    
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 6px;
+    margin-bottom: 10px;
+    
     color: white;
-    top: 0;
+    background-color: #1f3826;
+    box-shadow: -4px 4px 0px #50e67d;
+
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
 }
