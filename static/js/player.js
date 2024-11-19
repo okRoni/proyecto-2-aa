@@ -44,6 +44,7 @@ export default class Player {
     /**
      * Render the player base structure.
      * This includes the player name, score and hand container
+     * @param {boolean} hiddenHand if the score should be hidden
      */
     renderPlayerBase(hiddenHand = false) {
         const playerContainer = document.getElementById(this.position);
