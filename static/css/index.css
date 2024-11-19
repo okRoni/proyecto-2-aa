@@ -4,6 +4,7 @@ body {
 
     background-color: var(--background-color);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -130,6 +131,27 @@ body {
     font-weight: bold;
 }
 
+.buttons button {
+    width: 100px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background-color: #50e67d;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+    background-color: #4dcf6d;
+}
+
+.buttons button:active {
+    background-color: #42b45e;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -141,11 +163,9 @@ body {
 
 @keyframes dealCard {
     from {
-        transform: translateY(-20px);
-        opacity: 0;
+        transform: scale(1.1);
     }
     to {
-        transform: translateY(0);
-        opacity: 1;
+        transform: scale(1);
     }
 }

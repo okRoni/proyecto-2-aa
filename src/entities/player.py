@@ -2,10 +2,12 @@
 contains all the players types in the game
 '''
 
+from ..socketio_setup import socketio
+import eventlet
 from abc import ABC, abstractmethod
 import numpy as np
-from card import Card
-from deck import Deck
+from .card import Card
+from .deck import Deck
 
 
 class Player(ABC):
@@ -14,6 +16,7 @@ class Player(ABC):
         self.hand: list[Card] = []
         self.standing: bool = False
         self.busted: bool = False
+        self.position = ''
 
     @abstractmethod
     def make_move(self) -> None:
@@ -109,6 +112,21 @@ class Player(ABC):
         
         pass
 
+    def renderOnWeb(self) -> None:
+        '''
+        Sends the current state of the player to the web app
+        for rendering.
+        '''
+
+        socketio.emit('update-and-render', {
+            'position': self.position,
+            'hand': [card.to_dict() for card in self.get_hand()],
+            'standing': self.is_standing(),
+            'busted': self.is_busted(),
+            'handValue': self.get_hand_value()
+        })
+        eventlet.sleep(0)
+
     def __str__(self) -> str:
         return f'Hand ({self.get_hand_value()}): {self.hand}'
 
@@ -116,6 +134,7 @@ class Player(ABC):
 class Crupier(Player):
     def __init__(self):
         super().__init__()
+        self.position = 'crupier'
 
     def make_move(self) -> None:
         if self.get_hand_value() < 17:
@@ -124,9 +143,11 @@ class Crupier(Player):
             self.stand()
 
     def stand(self) -> None:
+        self.standing = True
         pass
 
     def hit(self, deck: Deck) -> None:
+        self.standing = False
         if len(deck) == 0:
             print('WARNING: Tried to hit with an empty deck. See Crupier.')
             return
@@ -156,6 +177,7 @@ class HumanPlayer(Player):
 
     def __init__(self):
         super().__init__()
+        self.position = 'player'
 
     def make_move(self) -> None:
         pass
@@ -179,6 +201,7 @@ class HumanPlayer(Player):
         player.hand = self.hand.copy()
         player.standing = self.standing
         player.busted = self.busted
+        player.position = self.position
         return player
 
 
@@ -188,8 +211,9 @@ class AiPlayer(Player):
     It uses Q-Learning and Probalistic Algorithms to make decisions.
     '''
 
-    def __init__(self):
+    def __init__(self, position: str = ''):
         super().__init__()
+        self.position = position
 
         # Matrix with all possible (state, action) pairs.
         # Has dimensions 32x2, 32 states (hand values) and 2 actions.
@@ -263,6 +287,7 @@ class AiPlayer(Player):
         Adds a card to the player's hand.
         '''
 
+        deck : Deck = Deck.getDeck()
         if len(deck) == 0:
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
@@ -413,40 +438,40 @@ class AiPlayer(Player):
 
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    deck = Deck.getDeck() # Initialize the deck and save the reference
-    ai = AiPlayer()
+#     deck = Deck.getDeck() # Initialize the deck and save the reference
+#     ai = AiPlayer()
 
-    for i in range(20):
-        # print(f'round {i}:')
-        # the game starts with 2 cards
-        ai.add_card_to_hand()
-        ai.add_card_to_hand()
-        print('\n')
-        print('starting with', ai.get_hand_value())
-        done = False
-        while not done:
-            ai.make_move()
-            if ai.is_busted():
-                print('busted')
-                done = True
-            elif ai.is_blackjack():
-                print('21 BJ on round', i)
-                done = True
-            elif ai.get_hand_value() == 21:
-                print('21 not BJ on round', i)
-                done = True
-            elif ai.is_standing():
-                print('standing')
-                done = True
-            else:
-                p = ai.prev_hand_value
-                s = 'stand' if ai.is_standing() else 'hit'
-                # print(f'curr: {ai.get_hand_value()}. Was in {p} and {s}.')
-        print('ended with', ai.get_hand_value())
-        ai.reset()
-        deck.reset()
-        # print()
+#     for i in range(20):
+#         # print(f'round {i}:')
+#         # the game starts with 2 cards
+#         ai.add_card_to_hand()
+#         ai.add_card_to_hand()
+#         print('\n')
+#         print('starting with', ai.get_hand_value())
+#         done = False
+#         while not done:
+#             ai.make_move()
+#             if ai.is_busted():
+#                 print('busted')
+#                 done = True
+#             elif ai.is_blackjack():
+#                 print('21 BJ on round', i)
+#                 done = True
+#             elif ai.get_hand_value() == 21:
+#                 print('21 not BJ on round', i)
+#                 done = True
+#             elif ai.is_standing():
+#                 print('standing')
+#                 done = True
+#             else:
+#                 p = ai.prev_hand_value
+#                 s = 'stand' if ai.is_standing() else 'hit'
+#                 # print(f'curr: {ai.get_hand_value()}. Was in {p} and {s}.')
+#         print('ended with', ai.get_hand_value())
+#         ai.reset()
+#         deck.reset()
+#         # print()
 
-    ai.show_qtable()
+#     ai.show_qtable()

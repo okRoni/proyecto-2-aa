@@ -18,6 +18,8 @@ export default class Player {
         this.busted = false;
         this.standing = false;
         this.handValue = 0;
+
+        Player.players.push(this);
     }
 
     /**
@@ -80,7 +82,7 @@ export default class Player {
 
     /**
      * Render a card into the player's hand
-     * @param {Object} card card object in format `{ value, fileName, color }`
+     * @param {Object} card card object in format `{ value, filename, color }`
      * @param {boolean} hidden if the card should be rendered as hidden (the back)
      */
     renderCard(card, hidden = false) {
@@ -89,7 +91,7 @@ export default class Player {
         cardContainer.classList.add('card-container');
         handElement.appendChild(cardContainer);
         const cardElement = document.createElement('img');
-        cardElement.src = `../static/deck_scans/${hidden ? 'back_black.png' : card.fileName}`;
+        cardElement.src = `../static/deck_scans/${hidden ? 'back_black.png' : card.filename}`;
         cardElement.classList.add('card-img');
         cardContainer.appendChild(cardElement);
     }
@@ -101,5 +103,12 @@ export default class Player {
      */
     getPlayerElement(className) {
         return document.querySelector(`#${this.position} .${className}`);
+    }
+
+    updateData(data) {
+        this.hand = data.hand;
+        this.handValue = data.handValue;
+        this.busted = data.busted;
+        this.standing = data.standing;
     }
 }

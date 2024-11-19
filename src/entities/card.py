@@ -8,3 +8,10 @@ class Card:
 
     def __str__(self) -> str:
         return f'{self.value}'
+    
+    def to_dict(self) -> dict:
+        return {
+            'value': self.value,
+            'filename': self.filename,
+            'color': self.color
+        }
