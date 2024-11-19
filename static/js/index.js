@@ -10,38 +10,19 @@ socket.on('connect', function() {
   console.log('Connected to server');
 });
 
+// Updates the indicated player data and renders it
 socket.on('update-and-render', function(data) {
   console.log('update-and-render', data);
   const player = Player.getPlayer(data.position);
   player.updateData(data);
-  player.render();
+  player.render(data.hideHand);
 });
 
 
+// This function is called when the start test button is clicked
+// It sends a message to the server to start the test
 function startTest() {
   socket.emit('start-test', { test: 'test' });
 }
 window.startTest = startTest;
-// we are using modules, so we need to export the function to the window object
 
-
-
-// let testCards = [
-//   { value: 2, fileName: '2_of_clubs.png', color: 'black' },
-//   { value: 3, fileName: '3_of_clubs.png', color: 'black' },
-//   { value: 4, fileName: '4_of_clubs.png', color: 'red' },
-//   { value: 5, fileName: '5_of_clubs.png', color: 'black' },
-//   { value: 11, fileName: 'ace_of_clubs.png', color: 'black' }
-// ];
-// player.hand = testCards;
-// player.handValue = 24;
-// player.render();
-// crupier.hand = testCards;
-// crupier.render(true);
-// ai1.render();
-// ai2.render();
-
-// setTimeout(() => {
-//   player.hand.push({ value: 3, fileName: '3_of_clubs.png', color: 'black' });
-//   player.render();
-// }, 2000);

@@ -112,7 +112,7 @@ class Player(ABC):
         
         pass
 
-    def renderOnWeb(self) -> None:
+    def renderOnWeb(self, hideHand : bool = False) -> None:
         '''
         Sends the current state of the player to the web app
         for rendering.
@@ -120,6 +120,7 @@ class Player(ABC):
 
         socketio.emit('update-and-render', {
             'position': self.position,
+            'hideHand': hideHand,
             'hand': [card.to_dict() for card in self.get_hand()],
             'standing': self.is_standing(),
             'busted': self.is_busted(),

@@ -33,7 +33,7 @@ export default class Player {
      * @param {boolean} hiddenHand if the cards should be rendered as hidden (the back)
      */
     render(hiddenHand = false) {
-        this.renderPlayerBase();
+        this.renderPlayerBase(hiddenHand);
         if (hiddenHand) {
             this.renderHandHidden();
         } else {
@@ -45,7 +45,7 @@ export default class Player {
      * Render the player base structure.
      * This includes the player name, score and hand container
      */
-    renderPlayerBase() {
+    renderPlayerBase(hiddenHand = false) {
         const playerContainer = document.getElementById(this.position);
         playerContainer.innerHTML = `
             <div class="player-info">
@@ -55,7 +55,9 @@ export default class Player {
                         ${this.busted ? 'Busted!' : this.standing ? 'Standing..' : ''}
                     </span>
                 </div>
-                <div class="player-score">${this.handValue}</div>
+                <div class="player-score">
+                    ${hiddenHand ? '?' : this.handValue}
+                </div>
             </div>
             <div class="player-hand"></div>
         `;

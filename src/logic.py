@@ -22,8 +22,8 @@ def test_function():
   # initial render
   for player in players:
     player.renderOnWeb()
-  crupier.renderOnWeb()
-  eventlet.sleep(1)
+  crupier.renderOnWeb(True)
+  eventlet.sleep(0.5)
 
   # deal cards
   for player in players:
@@ -34,13 +34,13 @@ def test_function():
     player.renderOnWeb()
     eventlet.sleep(0.5)
   crupier.add_card_to_hand()
-  crupier.renderOnWeb()
+  crupier.renderOnWeb(True)
   eventlet.sleep(0.5)
   crupier.add_card_to_hand()
-  crupier.renderOnWeb()
+  crupier.renderOnWeb(True)
   eventlet.sleep(0.5)
 
-  # play the game
+  # Players make their moves
   for player in players:
     done = False
     while not done:
@@ -52,7 +52,11 @@ def test_function():
       player.renderOnWeb()
       eventlet.sleep(1)
 
-  # crupier plays
+  # show cruiper's second card
+  crupier.renderOnWeb()
+  eventlet.sleep(1)
+
+  # crupier makes its move
   done = False
   while not done:
     crupier.make_move()
