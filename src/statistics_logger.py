@@ -80,11 +80,11 @@ class StatisticsLogger:
             case 'croupier':
                 self.current_game.croupier_moves.append(move)
             case 'ai1':
-                self.current_game.croupier_moves.append(move)
+                self.current_game.ai1_moves.append(move)
             case 'ai2':
-                self.current_game.croupier_moves.append(move)
+                self.current_game.ai2_moves.append(move)
             case 'human':
-                self.current_game.croupier_moves.append(move)
+                self.current_game.human_moves.append(move)
             case _:
                 print(f'WARNING: Unknown entity found in log_move ({entity}).')
 
@@ -99,8 +99,16 @@ class StatisticsLogger:
 if __name__ == '__main__':
     logger = StatisticsLogger()
     logger.log_move('croupier', 'S')
-    logger.log_move('ai1', 'S')
+    logger.log_move('ai1', 'H')
     logger.log_move('ai2', 'S')
-    logger.log_move('human', 'S')
+    logger.log_move('human', 'H')
+
+    logger.log_move('croupier', 'S')
+    logger.log_move('ai1', 'H')
+    logger.log_move('ai2', 'S')
+    logger.log_move('human', 'H')
+
     logger.log_winner('human')
+    logger.add_current_game()
+    logger.store_data()
 
