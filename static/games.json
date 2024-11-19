@@ -1,0 +1,16 @@
+[
+    {
+        "croupier_moves": ["S"],
+        "ai1_moves": ["S"],
+        "ai2_moves": ["S"],
+        "human_moves": ["S"],
+        "winner": "human"
+    },
+    {
+        "croupier_moves": ["S", "S"],
+        "ai1_moves": ["H", "H"],
+        "ai2_moves": ["S", "S"],
+        "human_moves": ["H", "H"],
+        "winner": "human"
+    }
+]

@@ -6,11 +6,26 @@
     <title>Black Jack</title>
     <link rel="stylesheet" href="{{ url_for('static', filename="css/index.css") }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename="js/index.js") }}" defer></script>
+    <script type="module" src="{{ url_for('static', filename="js/index.js") }}" defer></script>
 </head>
 <body>
   <div class="container">
-    <button id="start" onclick="startTest()">Start Test</button>
+    <div class="table">
+      <div id="crupier" class="player crupier">
+      </div>
+      <div id="player" class="player player-main">
+      </div>
+      <div id="ai1" class="player ai-player ai-left">
+      </div>
+      <div id="ai2" class="player ai-player ai-right">
+      </div>
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="start" onClick="startTest()">Start</button>
+      <button id="hit">Hit</button>
+      <button id="stand">Stand</button>
+    </div>
   </div>
 </body>
 </html>

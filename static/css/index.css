@@ -1,0 +1,184 @@
+body {
+    --background-color: #1d2720;
+    --table-color: #2e683f;
+
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font: 16px 'Roboto', sans-serif;
+}
+
+.container {
+    width: 80%;
+    height: 80%;
+    background-color: var(--table-color);
+    border-radius: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    border: 10px solid #4d4d4d;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.table {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    align-items: center;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    position: relative;
+}
+
+.table-decoration {
+    text-align: center;
+    color: white;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.player {
+    flex-direction: column;
+    width: 280px;
+    height: 160px;
+    border-radius: 10px;
+    justify-content: center;
+    color: white;
+    font-size: 1.2em;
+    position: absolute;
+}
+
+.crupier {
+    order: 1;
+    top: 0;
+}
+
+.player-main {
+    order: 2;
+    bottom: 0;
+}
+
+.ai-player {
+    order: 3;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ai-left {
+    left: 0;
+}
+
+.ai-right {
+    right: 0;
+}
+
+.player-hand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-wrap: nowrap;
+    height: fit-content;
+    width: 100%;
+}
+
+.card-container {
+    display: flex;
+    height: 100%;
+    width: fit-content;
+    margin-right: -50px;
+    animation: dealCard 0.5s ease-out;
+}
+
+.card-container:last-child {
+    margin-right: 0;
+}
+
+.card-img {
+    width: 80px;
+    height: 120px;
+    transition: transform 0.3s ease;
+}
+
+.card-img:hover {
+    transform: translateY(-10px);
+}
+
+.player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    width: 100%;
+    height: fit-content;
+    border-radius: 10px;
+    padding: 6px;
+    margin-bottom: 10px;
+    
+    color: white;
+    background-color: #1f3826;
+    box-shadow: -4px 4px 0px #50e67d;
+
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.player-status {
+    color: rgb(101, 255, 122);
+    font-size: 0.7em;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 400px;
+    height: 100px;
+}
+
+
+.buttons button {
+    width: 100px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background-color: #50e67d;
+    color: white;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+    background-color: #4dcf6d;
+}
+
+.buttons button:active {
+    background-color: #42b45e;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes dealCard {
+    from {
+        transform: scale(1.1);
+    }
+    to {
+        transform: scale(1);
+    }
+}
