@@ -14,13 +14,13 @@ let testCards = [
   { value: 3, fileName: '3_of_clubs.png', color: 'black' },
   { value: 4, fileName: '4_of_clubs.png', color: 'red' },
   { value: 5, fileName: '5_of_clubs.png', color: 'black' },
-  
   { value: 11, fileName: 'ace_of_clubs.png', color: 'black' }
 ];
 player.hand = testCards;
 player.handValue = 24;
 player.render();
-crupier.render();
+crupier.hand = testCards;
+crupier.render(true);
 ai1.render();
 ai2.render();
 

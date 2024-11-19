@@ -17,16 +17,20 @@ export default class Player {
         this.hand = [];
         this.busted = false;
         this.standing = false;
-        this.hideHand = false;
         this.handValue = 0;
     }
 
     /**
      * Render the player into its respective container
+     * @param {boolean} hiddenHand if the cards should be rendered as hidden (the back)
      */
-    render() {
+    render(hiddenHand = false) {
         this.renderPlayerBase();
-        this.renderHand();
+        if (hiddenHand) {
+            this.renderHandHidden();
+        } else {
+            this.renderHand();
+        }
     }
 
     /**
@@ -57,16 +61,35 @@ export default class Player {
     }
 
     /**
+     * Render the player hand 
+     * This will render the cards as the back of the card
+     * except for the first one
+     */
+    renderHandHidden() {
+        const handElement = this.getPlayerElement('player-hand');
+        handElement.innerHTML = '';
+        this.hand.forEach((card, index) => {
+            if (index === 0) {
+                this.renderCard(card);
+            } else {
+                this.renderCard(card, true);
+            }
+        });
+    }
+        
+
+    /**
      * Render a card into the player's hand
      * @param {Object} card card object in format `{ value, fileName, color }`
+     * @param {boolean} hidden if the card should be rendered as hidden (the back)
      */
-    renderCard(card) {
+    renderCard(card, hidden = false) {
         const handElement = this.getPlayerElement('player-hand');
         const cardContainer = document.createElement('div');
         cardContainer.classList.add('card-container');
         handElement.appendChild(cardContainer);
         const cardElement = document.createElement('img');
-        cardElement.src = `../static/deck_scans/${card.fileName}`;
+        cardElement.src = `../static/deck_scans/${hidden ? 'back_black.png' : card.fileName}`;
         cardElement.classList.add('card-img');
         cardContainer.appendChild(cardElement);
     }
