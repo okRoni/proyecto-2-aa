@@ -18,6 +18,7 @@ export default class Player {
         this.busted = false;
         this.standing = false;
         this.hideHand = false;
+        this.handValue = 0;
     }
 
     /**
@@ -37,7 +38,7 @@ export default class Player {
         playerContainer.innerHTML = `
             <div class="player-info">
                 <div class="player-name">${this.name}</div>
-                <div class="player-score">0</div>
+                <div class="player-score">${this.handValue}</div>
             </div>
             <div class="player-hand"></div>
         `;

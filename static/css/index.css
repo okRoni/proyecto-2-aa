@@ -21,6 +21,7 @@ body {
     justify-content: space-between;
     padding: 20px;
     border: 10px solid #4d4d4d;
+    animation: fadeIn 1s ease-in-out;
 }
 
 .table {
@@ -92,6 +93,7 @@ body {
     height: 100%;
     width: fit-content;
     margin-right: -50px;
+    animation: dealCard 0.5s ease-out;
 }
 
 .card-container:last-child {
@@ -101,6 +103,11 @@ body {
 .card-img {
     width: 80px;
     height: 120px;
+    transition: transform 0.3s ease;
+}
+
+.card-img:hover {
+    transform: translateY(-10px);
 }
 
 .player-info {
@@ -121,4 +128,24 @@ body {
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     font-size: 1em;
     font-weight: bold;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes dealCard {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

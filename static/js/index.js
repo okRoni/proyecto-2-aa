@@ -18,6 +18,7 @@ let testCards = [
   { value: 11, fileName: 'ace_of_clubs.png', color: 'black' }
 ];
 player.hand = testCards;
+player.handValue = 24;
 player.render();
 crupier.render();
 ai1.render();
