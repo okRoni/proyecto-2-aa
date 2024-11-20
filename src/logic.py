@@ -2,6 +2,7 @@ from random import choice, randint
 from .socketio_setup import socketio
 from .entities.player import AiPlayer, Crupier, Player, HumanPlayer
 from .entities.deck import Deck
+from .statistics_logger import StatisticsLogger
 import eventlet
 
 def test_function():
@@ -17,6 +18,7 @@ def test_function():
   aiPlayer1 : AiPlayer = AiPlayer('ai1')
   aiPlayer2 : AiPlayer = AiPlayer('ai2')
   humanPlayer : HumanPlayer = HumanPlayer()
+  statsLogger : StatisticsLogger = StatisticsLogger.getLogger()
 
   players : list[Player] = [aiPlayer1, humanPlayer ,aiPlayer2]
 

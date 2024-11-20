@@ -32,9 +32,22 @@ class Game:
 
 class StatisticsLogger:
     '''
-    Holds a record of all games and saves it to static/games.json when the app
-    is closed. Also, offers useful statistics about the game.
+    Holds a record of all games and saves it to static/games.json.
+    Also, offers useful statistics about the game.
     '''
+
+    instance = None  # Shared instance of StatisticsLogger.
+
+    @staticmethod
+    def getLogger() -> 'StatisticsLogger':
+        '''
+        Returns the shared instance of StatisticsLogger.
+        If the instance doesn't exist, it creates one.
+        '''
+
+        if StatisticsLogger.instance is None:
+            StatisticsLogger.instance = StatisticsLogger()
+        return StatisticsLogger.instance
 
     def __init__(self) -> None:
         self.games: list[dict[str, Any]] = []
@@ -70,6 +83,7 @@ class StatisticsLogger:
             'winner': self.current_game.winner
         }
         self.games.append(game_dict)
+        self.store_data()
         self.current_game = Game()
 
     def log_move(self, entity: str, move: str, new_hand_value: int) -> None:

@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from .card import Card
 from .deck import Deck
+from ..statistics_logger import StatisticsLogger
 
 
 class Player(ABC):
@@ -138,10 +139,13 @@ class Crupier(Player):
         self.position = 'crupier'
 
     def make_move(self) -> None:
+        logger: StatisticsLogger = StatisticsLogger.getLogger()
         if self.get_hand_value() < 17:
             self.hit(Deck.getDeck())
+            logger.log_move('croupier', 'H', self.get_hand_value())
         else:
             self.stand()
+            logger.log_move('croupier', 'S', self.get_hand_value())
 
     def stand(self) -> None:
         self.standing = True
@@ -194,12 +198,15 @@ class HumanPlayer(Player):
         eventlet.sleep(0)
 
         move = self.wait_for_player_move()
+        logger: StatisticsLogger = StatisticsLogger.getLogger()
         if move == 'hit':
             print('Player hit')
             self.hit()
+            logger.log_move('human', 'H', self.get_hand_value())
         elif move == 'stand':
             print('Player stand')
             self.stand()
+            logger.log_move('human', 'S', self.get_hand_value())
 
         socketio.emit('end-player-turn')
 
@@ -299,14 +306,17 @@ class AiPlayer(Player):
             else:
                 action = prob_action
 
+        logger: StatisticsLogger = StatisticsLogger.getLogger()
         if action == 0:
             print('Hitting...')
             self.standing = False
             self.hit()
+            logger.log_move(self.position, 'H', self.get_hand_value())
         else:
             print('Standing...')
             self.standing = True
             self.stand()
+            logger.log_move(self.position, 'S', self.get_hand_value())
 
         next_state = self.get_hand_value()
         reward = self.get_reward(state, next_state)
