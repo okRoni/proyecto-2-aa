@@ -188,6 +188,10 @@ class StatisticsLogger:
             bad_decisions[2] += get_bad_decisions(game['ai2_moves'])
             bad_decisions[3] += get_bad_decisions(game['human_moves'])
 
+        if 0 in total_decisions:
+            # This is needed to prevent 0 division errors.
+            return [0, 0, 0, 0]
+
         success_percentages: list[float] = []
         for i in range(4):
             # 100 * bad / total gives the percentage of bad decisions.
@@ -196,3 +200,27 @@ class StatisticsLogger:
                 100 - 100 * bad_decisions[i] / total_decisions[i]
             )
         return success_percentages
+
+    def get_stand_values(self) -> list[list[int]]:
+        '''
+        Returns a list of stand values per player of every game.
+        '''
+
+        def get_stand_value(moves_list: list[Any]) -> int:
+            for i in range(0, len(moves_list), 2):
+                if moves_list[i] == 'S':
+                     return moves_list[i + 1]
+            return moves_list[-1]
+
+        croupier_s_v: list[int] = []
+        ai1_s_v: list[int] = []
+        ai2_s_v: list[int] = []
+        human_s_v: list[int] = []
+
+        for game in self.games:
+            croupier_s_v.append(get_stand_value(game['croupier_moves']))
+            ai1_s_v.append(get_stand_value(game['ai1_moves']))
+            ai2_s_v.append(get_stand_value(game['ai2_moves']))
+            human_s_v.append(get_stand_value(game['human_moves']))
+
+        return [croupier_s_v, ai1_s_v, ai2_s_v, human_s_v]

@@ -28,5 +28,16 @@ def generate_decisions_report(data: dict):
     success_percentages: list[float] = logger.get_success_percentage()
     socketio.emit('receive-decisions-report', {'success_percentages': success_percentages})
 
+@socketio.on('generate-stand-report')
+def generate_stand_report(data: dict):
+    logger: StatisticsLogger = StatisticsLogger.get_logger()
+    stand_values: list[list[int]] = logger.get_stand_values()
+    socketio.emit('receive-stand-report', {
+        'croupier': stand_values[0],
+        'ai1': stand_values[1],
+        'ai2': stand_values[2],
+        'human': stand_values[3],
+    })
+
 if __name__ == '__main__':
     socketio.run(app, debug=True)
