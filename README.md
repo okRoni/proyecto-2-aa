@@ -1,4 +1,4 @@
-# Proyecto 1: Laberinto
+# Proyecto 2: Blackjack
 
 ## Inicio rápido!
 
@@ -11,7 +11,7 @@ git clone https://github.com/okRoni/proyecto-2-aa.git
 ### 2. Navegar al directorio del proyecto:
 
 ```shell
-cd tarea-2-aa
+cd proyecto-2-aa
 ```
 
 ### 3. Configurar un entorno virtual de python:
