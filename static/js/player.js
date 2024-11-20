@@ -110,6 +110,29 @@ export default class Player {
         cardContainer.appendChild(cardElement);
     }
 
+    renderGameResult(result) {
+        const gameResults = {
+            'win': 'Winner!',
+            'lose': 'Loser!',
+            'draw': 'Draw!',
+            'busted': 'Busted!',
+        }
+
+        const playerInfo = this.getPlayerElement('player-info');
+        playerInfo.innerHTML = `
+            <div class="player-name">
+                ${this.name}
+                <span class="player-status ${result}">
+                    ${gameResults[result] || ''}
+                </span>
+            </div>
+            <div class="player-score">
+                ${this.handValue}
+            </div>
+        `;
+
+    }
+
     /**
      * Gets a element by class name from the player container
      * @param {string} className class name of the element to get

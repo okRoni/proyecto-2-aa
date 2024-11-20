@@ -1,6 +1,6 @@
 from random import choice, randint
 from .socketio_setup import socketio
-from .entities.player import AiPlayer, Crupier, Player
+from .entities.player import AiPlayer, Crupier, Player, HumanPlayer
 from .entities.deck import Deck
 import eventlet
 
@@ -16,8 +16,9 @@ def test_function():
   crupier : Crupier = Crupier()
   aiPlayer1 : AiPlayer = AiPlayer('ai1')
   aiPlayer2 : AiPlayer = AiPlayer('ai2')
+  humanPlayer : HumanPlayer = HumanPlayer()
 
-  players : list[Player] = [aiPlayer1, aiPlayer2]
+  players : list[Player] = [aiPlayer1, humanPlayer ,aiPlayer2]
 
   # initial render
   for player in players:
@@ -72,7 +73,24 @@ def test_function():
     player.renderOnWeb()
   crupier.renderOnWeb()
 
+  socketio.emit('game-over', get_results_for_players(players, crupier))
 
+def get_results_for_players(players : list[Player], crupier : Crupier) -> dict:
+  '''
+  Determines the winner of the game based on the players' and crupier's hands.
+  Returns a dictionary with the winner and the results for each player.
+  '''
+  results = {}
+  for player in players:
+    if player.is_busted():
+      results[player.position] = 'busted'
+    elif crupier.is_busted():
+      results[player.position] = 'win'
+    elif player.get_hand_value() > crupier.get_hand_value():
+      results[player.position] = 'win'
+    elif player.get_hand_value() == crupier.get_hand_value():
+      results[player.position] = 'draw'
+    else:
+      results[player.position] = 'lose'
 
-  
-
+  return results

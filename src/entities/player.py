@@ -176,17 +176,53 @@ class HumanPlayer(Player):
     Class that represents a human player of a blackjack game.
     '''
 
+    instance : 'HumanPlayer' = None
+
+    @staticmethod
+    def get_current_instance() -> 'HumanPlayer':
+        return HumanPlayer.instance
+
     def __init__(self):
         super().__init__()
         self.position = 'player'
 
+        HumanPlayer.instance = self
+
     def make_move(self) -> None:
-        pass
+        
+        socketio.emit('start-player-turn')
+        eventlet.sleep(0)
+
+        move = self.wait_for_player_move()
+        if move == 'hit':
+            print('Player hit')
+            self.hit()
+        elif move == 'stand':
+            print('Player stand')
+            self.stand()
+
+        socketio.emit('end-player-turn')
+
+    def wait_for_player_move(self) -> str:
+        move = None
+
+        def handle_move(data : dict):
+            nonlocal move
+            move = data.get('move')
+
+        socketio.on_event('player-move', handle_move)
+
+        while move is None:
+            eventlet.sleep(0.1)
+
+        return move
 
     def stand(self) -> None:
+        self.standing = True
         pass
 
-    def hit(self, deck: Deck) -> None:
+    def hit(self) -> None:
+        deck : Deck = Deck.getDeck()
         if len(deck) == 0:
             # This should never happen. This is just so the app doesn't crash.
             print('WARNING: Tried to hit with an empty deck. See HumanPlayer.')
