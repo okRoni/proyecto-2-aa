@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename="css/index.css") }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="module" src="{{ url_for('static', filename="js/index.js") }}" defer></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
   <div class="container">
     <div class="table">
       <div class="reports-button">
-        <button>
+        <!-- To Do: Disable this button while playing a game. -->
+        <button onclick="toggleReports()">
           <img src="/static/icons/reports-icon.svg" class="report-icon" alt="">
         </button>
       </div>
@@ -32,8 +34,12 @@
       <button id="hit">Hit</button>
       <button id="stand">Stand</button>
     </div>
-    <div class="reports-window">
-      Reports window
+    <div class="reports-window" id="reports-window" hidden>
+      <h3>Wins per player</h3>
+      <hr>
+      <div class="wins-per-player-container">
+        
+      </div>
     </div>
   </div>
 </body>
