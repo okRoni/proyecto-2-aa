@@ -6,6 +6,12 @@ export default class Player {
         ai1: 'ai1',
         ai2: 'ai2',
     }
+    static displayStates = {
+        playing: '',
+        busted: 'Busted!',
+        standing: 'Standing..',
+        blackjack: 'Blackjack!',
+    }
 
     /**
      * Get a player by its position
@@ -23,6 +29,7 @@ export default class Player {
         this.hand = [];
         this.busted = false;
         this.standing = false;
+        this.state = 'playing';
         this.handValue = 0;
 
         Player.players.push(this);
@@ -53,7 +60,7 @@ export default class Player {
                 <div class="player-name">
                     ${this.name}
                     <span class="player-status">
-                        ${this.busted ? 'Busted!' : this.standing ? 'Standing..' : ''}
+                        ${Player.displayStates[this.state] || ''}
                     </span>
                 </div>
                 <div class="player-score">
@@ -151,5 +158,6 @@ export default class Player {
         this.handValue = data.handValue;
         this.busted = data.busted;
         this.standing = data.standing;
+        this.state = data.state;
     }
 }
