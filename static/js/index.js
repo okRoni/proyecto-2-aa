@@ -15,6 +15,7 @@ hitButton.disabled = true;
 const standButton = document.getElementById('stand');
 standButton.disabled = true;
 const hitSafeText = document.getElementById('hit-safe-prob');
+// hitSafeText.hidden = true;
 const reportsButton = document.getElementById('reports-button');
 
 socket.on('connect', function() {
