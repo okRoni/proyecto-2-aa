@@ -120,6 +120,20 @@ class Player(ABC):
         
         pass
 
+    def get_state(self) -> str:
+        '''
+        Returns the state of the player.
+        '''
+
+        if self.is_busted():
+            return 'busted'
+        elif self.is_blackjack():
+            return 'blackjack'
+        elif self.is_standing():
+            return 'standing'
+        else:
+            return 'playing'
+
     def renderOnWeb(self, hideHand : bool = False) -> None:
         '''
         Sends the current state of the player to the web app
@@ -132,6 +146,7 @@ class Player(ABC):
             'hand': [card.to_dict() for card in self.get_hand()],
             'standing': self.is_standing(),
             'busted': self.is_busted(),
+            'state': self.get_state(),
             'handValue': self.get_hand_value()
         })
         eventlet.sleep(0)
