@@ -3,13 +3,14 @@ from src.socketio_setup import app, socketio
 from random import randint
 import eventlet # eventlet is an asynchronous framework that works with Flask-SocketIO
 from src.logic import test_function
+from src.entities.player import HumanPlayer
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @socketio.on('start-test')
-def start_test(data):
+def start_test(data : dict):
     print('Starting test')
     print(data)
     test_function()

@@ -1,6 +1,6 @@
 from random import choice, randint
 from .socketio_setup import socketio
-from .entities.player import AiPlayer, Crupier, Player
+from .entities.player import AiPlayer, Crupier, Player, HumanPlayer
 from .entities.deck import Deck
 import eventlet
 
@@ -16,8 +16,9 @@ def test_function():
   crupier : Crupier = Crupier()
   aiPlayer1 : AiPlayer = AiPlayer('ai1')
   aiPlayer2 : AiPlayer = AiPlayer('ai2')
+  humanPlayer : HumanPlayer = HumanPlayer()
 
-  players : list[Player] = [aiPlayer1, aiPlayer2]
+  players : list[Player] = [aiPlayer1, humanPlayer ,aiPlayer2]
 
   # initial render
   for player in players:

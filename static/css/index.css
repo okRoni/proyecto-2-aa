@@ -150,7 +150,7 @@ body {
     border: none;
     border-radius: 10px;
     background-color: #50e67d;
-    color: white;
+    color: rgb(25, 65, 37);
     font-size: 1em;
     font-weight: bold;
     cursor: pointer;
@@ -163,6 +163,12 @@ body {
 
 .buttons button:active {
     background-color: #42b45e;
+}
+
+.buttons button:disabled {
+    background-color: #46553e;
+    color: #7eaa71;
+    cursor: not-allowed;
 }
 
 @keyframes fadeIn {
