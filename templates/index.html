@@ -4,28 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Black Jack</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=analytics" />
     <link rel="stylesheet" href="{{ url_for('static', filename="css/index.css") }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="module" src="{{ url_for('static', filename="js/index.js") }}" defer></script>
+    <script type="module" src="{{ url_for('static', filename="js/reports.js") }}" defer></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
   <div class="container">
     <div class="table">
-      <div class="table-decoration">
-        <p class="table-decoration-text">
-          Dealer must hit on 16 and stand on 17
-        </p>
+      <div class="reports-button">
+        <!-- To Do: Disable this button while playing a game. -->
+        <button onclick="toggleReports()" id="reports-button">
+          <img src="/static/icons/reports-icon.svg" class="report-icon" alt="">
+        </button>
       </div>
-      <div class="deck">
-        <div id="crupier" class="player crupier">
-        </div>
-        <div id="player" class="player player-main">
-        </div>
-        <div id="ai1" class="player ai-player ai-left">
-        </div>
-        <div id="ai2" class="player ai-player ai-right">
-        </div>
+      <div id="crupier" class="player crupier">
       </div>
+      <div id="player" class="player player-main">
+      </div>
+      <div id="ai1" class="player ai-player ai-left">
+      </div>
+      <div id="ai2" class="player ai-player ai-right">
+      </div>
+      </div>
+    </div>
+    <div class="buttons">
+      <button id="start" onClick="startTest()">Start</button>
+      <button id="hit" onClick="handleHitAction()">
+        <span class="button-text">Hit</span>
+        <span id="hit-safe-prob"></span>
+      </button>
+      <button id="stand" onClick="handleStandAction()">Stand</button>
+    </div>
+    <div class="reports-window" id="reports-window">
+      <div class="report-buttons-container">
+        <button onclick="showWinsReport()">Win percentage</button>
+        <button onclick="showDecisionsReport()">Right decision percentage</button>
+        <button onclick="showStandReport()">Stand values history</button>
+      </div>
+      <hr>
+      <div class="report" id="wins-report"></div>
+      <div class="report" id="decisions-report"></div>
+      <div class="report" id="stand-report"></div>
     </div>
   </div>
 </body>

@@ -1,9 +1,22 @@
 from random import randint
-from card import Card
+from .card import Card
 
 
 class Deck:
     """ Class that represents a deck of cards of a blackjack game. """
+    
+    instance = None # Shared instance of the deck (it works as our global variable)
+
+    @staticmethod
+    def getDeck() -> 'Deck':
+        '''
+        Returns the shared instance of the deck.
+        If the instance does not exist, it creates one.
+        '''
+        if Deck.instance == None:
+            Deck.instance = Deck()
+        return Deck.instance
+        
 
     def __init__(self) -> None:
         # This list contains all 52 cards of a standard deck
@@ -73,7 +86,7 @@ class Deck:
         the card from unshown_cards to shown_cards.
         """
 
-        card_index = randint(0, len(self.unshown_cards))
+        card_index = randint(0, len(self.unshown_cards) - 1)
         try:
             card = self.unshown_cards[card_index]
             del self.unshown_cards[card_index]
@@ -82,8 +95,38 @@ class Deck:
 
         self.shown_cards.append(card)
         return card
+    
+    def get_cards_left_of_value(self, value: int) -> int:
+        """
+        Returns the amount of cards left in the deck with a certain value.
+        """
+        amount = 0
+        for card in self.unshown_cards:
+            if card.value == value:
+                amount += 1
+        return amount
 
-    def __len__(self):
+    def reset(self) -> None:
+        '''
+        Puts all cards in unshown_cards.
+        '''
+
+        self.unshown_cards += self.shown_cards
+        self.shown_cards = []
+        if len(self.unshown_cards) != 6 * 52:
+            print('Something strange happened. A card was stolen. See Deck.')
+
+    def copy(self) -> 'Deck':
+        '''
+        Returns a copy of the deck.
+        '''
+
+        deck = Deck()
+        deck.unshown_cards = self.unshown_cards.copy()
+        deck.shown_cards = self.shown_cards.copy()
+        return deck
+
+    def __len__(self) -> int:
         """
         Returns the amount of unshown cards.
         """
