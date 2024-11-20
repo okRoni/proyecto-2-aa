@@ -183,7 +183,7 @@ body {
     }
 }
 
-.reports {
+.reports-button {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -191,7 +191,7 @@ body {
     height: 50px;
 }
 
-.reports button {
+.reports-button button {
     padding: 0px;
     border-radius: 10px;
     width: 100%;
@@ -202,10 +202,23 @@ body {
     transition: filter 0.3s ease;
 }
 
-.reports button:hover {
+.reports-button button:hover {
     filter: brightness(90%);
 }
 
-.reports button:active {
+.reports-button button:active {
     filter: brightness(75%);
+}
+
+.reports-window {
+    position: absolute;
+    top: auto;
+    left: auto;
+    width: 70%;
+    height: 70%;
+    color: white;
+    background-color: #1d2720ee;
+    backdrop-filter: blur(3px);
+    border-radius: 20px;
+    z-index: 10;
 }
