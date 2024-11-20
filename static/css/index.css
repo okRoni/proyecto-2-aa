@@ -135,6 +135,26 @@ body {
     font-size: 0.7em;
 }
 
+.player-status.win {
+    color: #7abfff;
+}
+
+.player-status.lose {
+    color: #ff7a7a;
+}
+
+.player-status.draw {
+    color: #c2c2c2;
+}
+
+.player-status.blackjack {
+    color: #dac35e;
+}
+
+.player-status.busted {
+    color: #ff7a7a;
+}
+
 .buttons {
     display: flex;
     justify-content: space-around;

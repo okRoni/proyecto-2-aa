@@ -6,6 +6,7 @@ const player = new Player('Player', Player.positions.player);
 const crupier = new Player('Crupier', Player.positions.crupier);
 const ai1 = new Player('AI 1', Player.positions.ai1);
 const ai2 = new Player('AI 2', Player.positions.ai2);
+const players = [player, ai1, ai2];
 
 // Elements
 const startButton = document.getElementById('start');
@@ -36,6 +37,12 @@ socket.on('end-player-turn', function(data) {
   standButton.disabled = true;
 });
 
+socket.on('game-over', function(data) {
+  startButton.disabled = false;
+  for (const player of players) {
+    player.renderGameResult(data[player.position]);
+  }
+});
 
 // This function is called when the start test button is clicked
 // It sends a message to the server to start the test
