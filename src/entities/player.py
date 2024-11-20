@@ -132,6 +132,8 @@ class Player(ABC):
         elif self.is_standing():
             return 'standing'
         else:
+            if len(self.hand) < 2:
+                return 'standby'
             return 'playing'
 
     def renderOnWeb(self, hideHand : bool = False) -> None:
@@ -147,9 +149,56 @@ class Player(ABC):
             'standing': self.is_standing(),
             'busted': self.is_busted(),
             'state': self.get_state(),
-            'handValue': self.get_hand_value()
+            'handValue': self.get_hand_value(),
+            'hitSafeProbability': self.calculate_hit_probability()
         })
         eventlet.sleep(0)
+
+    def calculate_hit_probability(self) -> float:
+        '''
+        Calculates how safe is to hit based on the current state.
+        '''
+        hit_safe_probability = 0.0
+
+        # Simulate the player's move
+        simulation_results = self.simulate_multiple_moves()
+        hit_safe_probability = sum(simulation_results) / len(simulation_results)
+
+        return hit_safe_probability
+
+    def simulate_multiple_moves(self) -> list[float]:
+        '''
+        Simulates the next move of the player in multiple cases.
+        Returns a list with the probability of hitting safely in each case.
+        '''
+        SIMULATION_ROUNDS : int = 1000
+        round_probabilities = []
+
+        for i in range(SIMULATION_ROUNDS):
+            # Simulate a round
+            round_probabilities.append(self.simulate_move())
+
+        return round_probabilities
+
+    def simulate_move(self) -> float:
+        '''
+        Simulates a move of the player based on the current state.
+        Returns the probability of hitting safely.
+        '''
+        deck_copy = Deck.getDeck().copy()
+        player_copy = self.copy()
+        # crupier_copy = self.crupier.copy()
+        hit_safe_probability = 0.0
+
+        # Simulate the player's move
+        card = deck_copy.get_random_card()
+        player_copy.hand.append(card)
+        if player_copy.is_busted():
+            hit_safe_probability = 0.0
+        else:
+            hit_safe_probability = 1.0
+
+        return hit_safe_probability
 
     def __str__(self) -> str:
         return f'Hand ({self.get_hand_value()}): {self.hand}'
@@ -433,52 +482,6 @@ class AiPlayer(Player):
                 rounded_value = f'{t_qtable[i][j]:.2f}'
                 print(f'{rounded_value:5}', end=' ')
             print()
-
-    def calculate_hit_probability(self) -> float:
-        '''
-        Calculates how safe is to hit based on the current state.
-        '''
-        hit_safe_probability = 0.0
-
-        # Simulate the player's move
-        simulation_results = self.simulate_multiple_moves()
-        hit_safe_probability = sum(simulation_results) / len(simulation_results)
-
-        return hit_safe_probability
-
-    def simulate_multiple_moves(self) -> list[float]:
-        '''
-        Simulates the next move of the player in multiple cases.
-        Returns a list with the probability of hitting safely in each case.
-        '''
-        SIMULATION_ROUNDS : int = 1000
-        round_probabilities = []
-
-        for i in range(SIMULATION_ROUNDS):
-            # Simulate a round
-            round_probabilities.append(self.simulate_move())
-
-        return round_probabilities
-
-    def simulate_move(self) -> float:
-        '''
-        Simulates a move of the player based on the current state.
-        Returns the probability of hitting safely.
-        '''
-        deck_copy = Deck.getDeck().copy()
-        player_copy = self.copy()
-        # crupier_copy = self.crupier.copy()
-        hit_safe_probability = 0.0
-
-        # Simulate the player's move
-        card = deck_copy.get_random_card()
-        player_copy.hand.append(card)
-        if player_copy.is_busted():
-            hit_safe_probability = 0.0
-        else:
-            hit_safe_probability = 1.0
-
-        return hit_safe_probability
     
     def get_prob_action(self) -> int:
         '''

@@ -14,6 +14,8 @@ const hitButton = document.getElementById('hit');
 hitButton.disabled = true;
 const standButton = document.getElementById('stand');
 standButton.disabled = true;
+const hitSafeText = document.getElementById('hit-safe-prob');
+// hitSafeText.hidden = true;
 
 socket.on('connect', function() {
   console.log('Connected to server');
@@ -25,16 +27,21 @@ socket.on('update-and-render', function(data) {
   const player = Player.getPlayer(data.position);
   player.updateData(data);
   player.render(data.hideHand);
+  if (data.position === Player.positions.player) {
+    hitSafeText.innerHTML = `${(data.hitSafeProbability * 100).toFixed(1)}% safe`;
+  }
 });
 
 socket.on('start-player-turn', function(data) {
   hitButton.disabled = false;
   standButton.disabled = false;
+  // hitSafeText.hidden = false;
 });
 
 socket.on('end-player-turn', function(data) {
   hitButton.disabled = true;
   standButton.disabled = true;
+  // hitSafeText.hidden = true;
 });
 
 socket.on('game-over', function(data) {
