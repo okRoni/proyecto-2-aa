@@ -214,11 +214,43 @@ body {
     position: absolute;
     top: auto;
     left: auto;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
     width: 70%;
     height: 70%;
     color: white;
     background-color: #1d2720ee;
     backdrop-filter: blur(3px);
     border-radius: 20px;
-    z-index: 10;
+}
+
+.report-buttons-container {
+    display: flex;
+    column-gap: 20px;
+    padding-left: 10px;
+}
+
+.report-buttons-container button {
+    color: white;
+    background: none;
+    border: none;
+    padding: 0px;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.reports-window hr {
+    border: none;
+    height: 1px;
+    width: 100%;
+    color: white;
+    background-color: white;
+    flex-shrink: 0;
+}
+
+.report {
+    display: none;
+    justify-content: center;
 }

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename="css/index.css") }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="module" src="{{ url_for('static', filename="js/index.js") }}" defer></script>
+    <script type="module" src="{{ url_for('static', filename="js/reports.js") }}" defer></script>
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -34,12 +35,14 @@
       <button id="hit">Hit</button>
       <button id="stand">Stand</button>
     </div>
-    <div class="reports-window" id="reports-window" hidden>
-      <h3>Wins per player</h3>
-      <hr>
-      <div class="wins-per-player-container">
-        
+    <div class="reports-window" id="reports-window">
+      <div class="report-buttons-container">
+        <button onclick="showWinsReport()">Wins per player</button>
+        <button onclick="showDecisionsReport()">Right decisions per player</button>
       </div>
+      <hr>
+      <div class="report" id="wins-report"></div>
+      <div class="report" id="decisions-report"></div>
     </div>
   </div>
 </body>
