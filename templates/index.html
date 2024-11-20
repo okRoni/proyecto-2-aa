@@ -16,7 +16,7 @@
     <div class="table">
       <div class="reports-button">
         <!-- To Do: Disable this button while playing a game. -->
-        <button onclick="toggleReports()">
+        <button onclick="toggleReports()" id="reports-button">
           <img src="/static/icons/reports-icon.svg" class="report-icon" alt="">
         </button>
       </div>
@@ -40,12 +40,14 @@
     </div>
     <div class="reports-window" id="reports-window">
       <div class="report-buttons-container">
-        <button onclick="showWinsReport()">Wins per player</button>
-        <button onclick="showDecisionsReport()">Right decisions per player</button>
+        <button onclick="showWinsReport()">Win percentage</button>
+        <button onclick="showDecisionsReport()">Right decision percentage</button>
+        <button onclick="showStandReport()">Average stand value</button>
       </div>
       <hr>
       <div class="report" id="wins-report"></div>
       <div class="report" id="decisions-report"></div>
+      <div class="report" id="stand-report"></div>
     </div>
   </div>
 </body>

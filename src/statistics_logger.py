@@ -1,5 +1,5 @@
 '''
-Classes used to log the moves made by each player and the winner of each game.
+Classes used to log the moves made by each player and the winners of each game.
 This data is used later to generate game statistics in the app.
 Here 'game' means like the Spanish 'partida'. Didn't find a better translation.
 Available moves (hit and stand) are represented with the strings 'H' and 'S'.
@@ -27,14 +27,27 @@ class Game:
         self.ai1_moves: list[str | int] = []
         self.ai2_moves: list[str | int] = []
         self.human_moves: list[str | int] = []
-        self.winner: str = ''
+        self.winners: list[str] = []
 
 
 class StatisticsLogger:
     '''
-    Holds a record of all games and saves it to static/games.json when the app
-    is closed. Also, offers useful statistics about the game.
+    Holds a record of all games and saves it to static/games.json.
+    Also, offers useful statistics about the game.
     '''
+
+    instance = None  # Shared instance of StatisticsLogger.
+
+    @staticmethod
+    def get_logger() -> 'StatisticsLogger':
+        '''
+        Returns the shared instance of StatisticsLogger.
+        If the instance doesn't exist, it creates one.
+        '''
+
+        if StatisticsLogger.instance is None:
+            StatisticsLogger.instance = StatisticsLogger()
+        return StatisticsLogger.instance
 
     def __init__(self) -> None:
         self.games: list[dict[str, Any]] = []
@@ -46,7 +59,7 @@ class StatisticsLogger:
         Loads the content of static/games.json file to self.games.
         '''
 
-        with open('../static/games.json', 'r', encoding='utf-8') as file:
+        with open('./static/games.json', 'r', encoding='utf-8') as file:
             self.games = json.load(file)
 
     def store_data(self) -> None:
@@ -54,7 +67,8 @@ class StatisticsLogger:
         Stores the content of self.games to static/games.json file.
         '''
 
-        with open('../static/games.json', 'w', encoding='utf-8') as file:
+        self.add_current_game()
+        with open('./static/games.json', 'w', encoding='utf-8') as file:
             json.dump(self.games, file)
 
     def add_current_game(self) -> None:
@@ -67,7 +81,7 @@ class StatisticsLogger:
             'ai1_moves': self.current_game.ai1_moves,
             'ai2_moves': self.current_game.ai2_moves,
             'human_moves': self.current_game.human_moves,
-            'winner': self.current_game.winner
+            'winners': self.current_game.winners
         }
         self.games.append(game_dict)
         self.current_game = Game()
@@ -98,15 +112,16 @@ class StatisticsLogger:
             case _:
                 print(f'WARNING: Unknown entity found in log_move ({entity}).')
 
-    def log_winner(self, winner: str) -> None:
+    def log_winners(self, winners: list[str]) -> None:
         '''
-        Logs the specified winner in the current game.
+        Logs the specified winners in the current game.
         '''
 
-        if winner not in ['croupier', 'ai1', 'ai2', 'human']:
-            print(f'WARNING: Unknown entity found in log_winner ({winner}).')
-            return
-        self.current_game.winner = winner
+        for i in winners:
+            if i not in ['croupier', 'ai1', 'ai2', 'human']:
+                print(f'WARNING: Unknown entity found in log_winners ({i}).')
+                return
+        self.current_game.winners = winners
 
     def get_win_percentage(self) -> list[float]:
         '''
@@ -121,18 +136,19 @@ class StatisticsLogger:
             return [0, 0, 0, 0]
         total_wins: list[float] = [0, 0, 0, 0]  # Total wins per player.
         for game in self.games:
-            match game['winner']:
-                case 'croupier':
-                    total_wins[0] += 1
-                case 'ai1':
-                    total_wins[1] += 1
-                case 'ai2':
-                    total_wins[2] += 1
-                case 'human':
-                    total_wins[3] += 1
-                case _:
-                    pass
-        return [i / total_games for i in total_wins]
+            for winner in game['winners']:
+                match winner:
+                    case 'croupier':
+                        total_wins[0] += 1
+                    case 'ai1':
+                        total_wins[1] += 1
+                    case 'ai2':
+                        total_wins[2] += 1
+                    case 'human':
+                        total_wins[3] += 1
+                    case _:
+                        pass
+        return [100 * i / total_games for i in total_wins]
 
     def get_success_percentage(self) -> list[float]:
         '''
@@ -172,31 +188,39 @@ class StatisticsLogger:
             bad_decisions[2] += get_bad_decisions(game['ai2_moves'])
             bad_decisions[3] += get_bad_decisions(game['human_moves'])
 
+        if 0 in total_decisions:
+            # This is needed to prevent 0 division errors.
+            return [0, 0, 0, 0]
+
         success_percentages: list[float] = []
         for i in range(4):
             # 100 * bad / total gives the percentage of bad decisions.
-            # Therefore, 1 - 100 * bad / total gives the percentage of success.
+            # Therefore, 100 - 100 * bad / total gives the percentage of success.
             success_percentages.append(
-                1 - 100 * bad_decisions[i] / total_decisions[i]
+                100 - 100 * bad_decisions[i] / total_decisions[i]
             )
         return success_percentages
 
+    def get_stand_values(self) -> list[list[int]]:
+        '''
+        Returns a list of stand values per player of every game.
+        '''
 
-if __name__ == '__main__':
-    logger = StatisticsLogger()
+        def get_stand_value(moves_list: list[Any]) -> int:
+            for i in range(0, len(moves_list), 2):
+                if moves_list[i] == 'S':
+                     return moves_list[i + 1]
+            return moves_list[-1]
 
-    logger.log_move('croupier', 'H', 10)
-    logger.log_move('ai1', 'H', 9)
-    logger.log_move('ai2', 'H', 8)
-    logger.log_move('human', 'H', 7)
+        croupier_s_v: list[int] = []
+        ai1_s_v: list[int] = []
+        ai2_s_v: list[int] = []
+        human_s_v: list[int] = []
 
-    logger.log_move('croupier', 'H', 17)
-    logger.log_move('ai1', 'H', 19)
-    logger.log_move('ai2', 'H', 16)
-    logger.log_move('human', 'S', 7)
+        for game in self.games:
+            croupier_s_v.append(get_stand_value(game['croupier_moves']))
+            ai1_s_v.append(get_stand_value(game['ai1_moves']))
+            ai2_s_v.append(get_stand_value(game['ai2_moves']))
+            human_s_v.append(get_stand_value(game['human_moves']))
 
-    logger.log_winner('ai1')
-    logger.add_current_game()
-    logger.store_data()
-
-    print(logger.get_success_percentage())
+        return [croupier_s_v, ai1_s_v, ai2_s_v, human_s_v]

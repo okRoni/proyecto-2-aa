@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from .card import Card
 from .deck import Deck
+from ..statistics_logger import StatisticsLogger
 
 
 class Player(ABC):
@@ -210,10 +211,13 @@ class Crupier(Player):
         self.position = 'crupier'
 
     def make_move(self) -> None:
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if self.get_hand_value() < 17:
             self.hit(Deck.getDeck())
+            logger.log_move('croupier', 'H', self.get_hand_value())
         else:
             self.stand()
+            logger.log_move('croupier', 'S', self.get_hand_value())
 
     def stand(self) -> None:
         self.standing = True
@@ -266,12 +270,15 @@ class HumanPlayer(Player):
         eventlet.sleep(0)
 
         move = self.wait_for_player_move()
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if move == 'hit':
             print('Player hit')
             self.hit()
+            logger.log_move('human', 'H', self.get_hand_value())
         elif move == 'stand':
             print('Player stand')
             self.stand()
+            logger.log_move('human', 'S', self.get_hand_value())
 
         socketio.emit('end-player-turn')
 
@@ -371,14 +378,17 @@ class AiPlayer(Player):
             else:
                 action = prob_action
 
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if action == 0:
             print('Hitting...')
             self.standing = False
             self.hit()
+            logger.log_move(self.position, 'H', self.get_hand_value())
         else:
             print('Standing...')
             self.standing = True
             self.stand()
+            logger.log_move(self.position, 'S', self.get_hand_value())
 
         next_state = self.get_hand_value()
         reward = self.get_reward(state, next_state)
@@ -498,43 +508,3 @@ class AiPlayer(Player):
             action = 1
 
         return action
-
-
-
-# if __name__ == '__main__':
-
-#     deck = Deck.getDeck() # Initialize the deck and save the reference
-#     ai = AiPlayer()
-
-#     for i in range(20):
-#         # print(f'round {i}:')
-#         # the game starts with 2 cards
-#         ai.add_card_to_hand()
-#         ai.add_card_to_hand()
-#         print('\n')
-#         print('starting with', ai.get_hand_value())
-#         done = False
-#         while not done:
-#             ai.make_move()
-#             if ai.is_busted():
-#                 print('busted')
-#                 done = True
-#             elif ai.is_blackjack():
-#                 print('21 BJ on round', i)
-#                 done = True
-#             elif ai.get_hand_value() == 21:
-#                 print('21 not BJ on round', i)
-#                 done = True
-#             elif ai.is_standing():
-#                 print('standing')
-#                 done = True
-#             else:
-#                 p = ai.prev_hand_value
-#                 s = 'stand' if ai.is_standing() else 'hit'
-#                 # print(f'curr: {ai.get_hand_value()}. Was in {p} and {s}.')
-#         print('ended with', ai.get_hand_value())
-#         ai.reset()
-#         deck.reset()
-#         # print()
-
-#     ai.show_qtable()
