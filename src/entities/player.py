@@ -350,6 +350,10 @@ class AiPlayer(Player):
         self.ql_weight = 0.4
         self.prob_weight = 0.6
 
+        if self.position == 'ai2':
+            # Ai 2 is going to be more ql-based than probability-based.
+            self.ql_weight = 0.6
+            self.prob_weight = 0.4
 
     def make_move(self) -> None:
         '''
