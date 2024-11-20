@@ -50,7 +50,15 @@ class Player(ABC):
         hand_value = 0
         for card in self.hand:
             hand_value += card.value
+        
+        # Check if there are aces in the hand
+        aces = [card for card in self.hand if card.value == 11]
+        for ace in aces:
+            if hand_value > 21:
+                hand_value -= 10
+
         return hand_value
+
 
     def add_card_to_hand(self) -> Card:
         '''
