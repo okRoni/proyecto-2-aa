@@ -236,6 +236,11 @@ body {
     filter: brightness(75%);
 }
 
+.reports-button button:disabled {
+    filter: brightness(50%);
+    cursor: not-allowed;
+}
+
 .reports-window {
     position: absolute;
     top: auto;

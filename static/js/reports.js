@@ -1,18 +1,31 @@
-function generateWinsReport() {
+var socket = io()
+
+async function generateWinsReport() {
+    socket.emit('generate-wins-report', {});
+    let reportData;
+    function handleResponse(data) {
+        reportData = data;
+    }
+    socket.on('receive-wins-report', handleResponse);
+    while (reportData == undefined) {
+        await new Promise(r => setTimeout(r, 100))  // Waits for 100 ms.
+    }
+    let percentages = reportData.win_percentages;
     let winsReportData = [{
-        type: 'pie',
-        values: [1, 3, 7, 2],
-        labels: ['Croupier', 'Ai1', 'Ai2', 'Human'],
-        textinfo: 'label+percent',
-        textposition: 'outside',
+        type: 'bar',
+        x: ['Croupier', 'Ai1', 'Ai2', 'Human'],
+        y: percentages,
+        width: [0.5, 0.5, 0.5, 0.5],
         automargin: true
     }];
     let winsReportLayout = {
         height: 300,
-        width: 750,
-        margin: { 't': 10, 'b': 10, 'l': 10, 'r': 10 },
+        width: 550,
+        margin: { 't': 30, 'b': 30, 'l': 30, 'r': 30 },
         showlegend: false,
         paper_bgcolor: "rgba(0, 0, 0, 0)",
+        plot_bgcolor: "rgba(128, 128, 128, 0.2)",
+        barcornerradius: 5,
         font: {
             color: "#fff"
         }
@@ -20,25 +33,36 @@ function generateWinsReport() {
     Plotly.newPlot('wins-report', winsReportData, winsReportLayout);
 }
 
-function generateDecisionsReport() {
+async function generateDecisionsReport() {
+    socket.emit('generate-decisions-report', {});
+    let reportData;
+    function handleResponse(data) {
+        reportData = data;
+    }
+    socket.on('receive-decisions-report', handleResponse);
+    while (reportData == undefined) {
+        await new Promise(r => setTimeout(r, 100))  // Waits for 100 ms.
+    }
+    let percentages = reportData.success_percentages;
+
     let decisionsReportData = [{
-        type: 'pie',
-        values: [3, 4, 2, 6],
-        labels: ['Croupier', 'Ai1', 'Ai2', 'Human'],
-        textinfo: 'label+percent',
-        textposition: 'outside',
+        type: 'bar',
+        x: ['Croupier', 'Ai1', 'Ai2', 'Human'],
+        y: percentages,
+        width: [0.5, 0.5, 0.5, 0.5],
         automargin: true
     }];
     let decisionsReportLayout = {
         height: 300,
-        width: 750,
-        margin: { 't': 10, 'b': 10, 'l': 10, 'r': 10 },
+        width: 550,
+        margin: { 't': 30, 'b': 30, 'l': 30, 'r': 30 },
         showlegend: false,
         paper_bgcolor: "rgba(0, 0, 0, 0)",
+        plot_bgcolor: "rgba(128, 128, 128, 0.2)",
+        barcornerradius: 5,
         font: {
             color: "#fff"
         }
-
     };
     Plotly.newPlot('decisions-report', decisionsReportData, decisionsReportLayout);
 }

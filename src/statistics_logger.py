@@ -59,7 +59,7 @@ class StatisticsLogger:
         Loads the content of static/games.json file to self.games.
         '''
 
-        with open('../static/games.json', 'r', encoding='utf-8') as file:
+        with open('./static/games.json', 'r', encoding='utf-8') as file:
             self.games = json.load(file)
 
     def store_data(self) -> None:
@@ -67,7 +67,8 @@ class StatisticsLogger:
         Stores the content of self.games to static/games.json file.
         '''
 
-        with open('../static/games.json', 'w', encoding='utf-8') as file:
+        self.add_current_game()
+        with open('./static/games.json', 'w', encoding='utf-8') as file:
             json.dump(self.games, file)
 
     def add_current_game(self) -> None:
@@ -83,7 +84,6 @@ class StatisticsLogger:
             'winners': self.current_game.winners
         }
         self.games.append(game_dict)
-        self.store_data()
         self.current_game = Game()
 
     def log_move(self, entity: str, move: str, new_hand_value: int) -> None:
@@ -148,7 +148,7 @@ class StatisticsLogger:
                         total_wins[3] += 1
                     case _:
                         pass
-        return [i / total_games for i in total_wins]
+        return [100 * i / total_games for i in total_wins]
 
     def get_success_percentage(self) -> list[float]:
         '''
@@ -191,8 +191,8 @@ class StatisticsLogger:
         success_percentages: list[float] = []
         for i in range(4):
             # 100 * bad / total gives the percentage of bad decisions.
-            # Therefore, 1 - 100 * bad / total gives the percentage of success.
+            # Therefore, 100 - 100 * bad / total gives the percentage of success.
             success_percentages.append(
-                1 - 100 * bad_decisions[i] / total_decisions[i]
+                100 - 100 * bad_decisions[i] / total_decisions[i]
             )
         return success_percentages

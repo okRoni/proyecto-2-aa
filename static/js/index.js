@@ -14,6 +14,7 @@ const hitButton = document.getElementById('hit');
 hitButton.disabled = true;
 const standButton = document.getElementById('stand');
 standButton.disabled = true;
+const reportsButton = document.getElementById('reports-button');
 
 socket.on('connect', function() {
   console.log('Connected to server');
@@ -39,6 +40,7 @@ socket.on('end-player-turn', function(data) {
 
 socket.on('game-over', function(data) {
   startButton.disabled = false;
+  reportsButton.disabled = false;
   for (const player of players) {
     player.renderGameResult(data[player.position]);
   }
@@ -49,6 +51,7 @@ socket.on('game-over', function(data) {
 function startTest() {
   socket.emit('start-test', { test: 'test' });
   startButton.disabled = true;
+  reportsButton.disabled = true;
 }
 window.startTest = startTest;
 

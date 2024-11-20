@@ -198,7 +198,7 @@ class HumanPlayer(Player):
         eventlet.sleep(0)
 
         move = self.wait_for_player_move()
-        logger: StatisticsLogger = StatisticsLogger.getLogger()
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if move == 'hit':
             print('Player hit')
             self.hit()
@@ -306,7 +306,7 @@ class AiPlayer(Player):
             else:
                 action = prob_action
 
-        logger: StatisticsLogger = StatisticsLogger.getLogger()
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if action == 0:
             print('Hitting...')
             self.standing = False
@@ -482,43 +482,3 @@ class AiPlayer(Player):
             action = 1
 
         return action
-
-
-
-# if __name__ == '__main__':
-
-#     deck = Deck.getDeck() # Initialize the deck and save the reference
-#     ai = AiPlayer()
-
-#     for i in range(20):
-#         # print(f'round {i}:')
-#         # the game starts with 2 cards
-#         ai.add_card_to_hand()
-#         ai.add_card_to_hand()
-#         print('\n')
-#         print('starting with', ai.get_hand_value())
-#         done = False
-#         while not done:
-#             ai.make_move()
-#             if ai.is_busted():
-#                 print('busted')
-#                 done = True
-#             elif ai.is_blackjack():
-#                 print('21 BJ on round', i)
-#                 done = True
-#             elif ai.get_hand_value() == 21:
-#                 print('21 not BJ on round', i)
-#                 done = True
-#             elif ai.is_standing():
-#                 print('standing')
-#                 done = True
-#             else:
-#                 p = ai.prev_hand_value
-#                 s = 'stand' if ai.is_standing() else 'hit'
-#                 # print(f'curr: {ai.get_hand_value()}. Was in {p} and {s}.')
-#         print('ended with', ai.get_hand_value())
-#         ai.reset()
-#         deck.reset()
-#         # print()
-
-#     ai.show_qtable()

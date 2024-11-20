@@ -18,7 +18,7 @@ def test_function():
   aiPlayer1 : AiPlayer = AiPlayer('ai1')
   aiPlayer2 : AiPlayer = AiPlayer('ai2')
   humanPlayer : HumanPlayer = HumanPlayer()
-  statsLogger : StatisticsLogger = StatisticsLogger.getLogger()
+  statsLogger : StatisticsLogger = StatisticsLogger.get_logger()
 
   players : list[Player] = [aiPlayer1, humanPlayer ,aiPlayer2]
 
