@@ -139,7 +139,7 @@ class Crupier(Player):
         self.position = 'crupier'
 
     def make_move(self) -> None:
-        logger: StatisticsLogger = StatisticsLogger.getLogger()
+        logger: StatisticsLogger = StatisticsLogger.get_logger()
         if self.get_hand_value() < 17:
             self.hit(Deck.getDeck())
             logger.log_move('croupier', 'H', self.get_hand_value())

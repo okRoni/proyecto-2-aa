@@ -83,16 +83,33 @@ def get_results_for_players(players : list[Player], crupier : Crupier) -> dict:
   Returns a dictionary with the winner and the results for each player.
   '''
   results = {}
+  croupier_wins: bool = True
   for player in players:
     if player.is_busted():
       results[player.position] = 'busted'
     elif crupier.is_busted():
       results[player.position] = 'win'
+      croupier_wins = False
     elif player.get_hand_value() > crupier.get_hand_value():
       results[player.position] = 'win'
+      croupier_wins = False
     elif player.get_hand_value() == crupier.get_hand_value():
       results[player.position] = 'draw'
     else:
       results[player.position] = 'lose'
 
+  logger: StatisticsLogger = StatisticsLogger.get_logger()
+  # The StatisticsLogger class understands the croupier as another player.
+  if croupier_wins:
+    logger.log_winners(['croupier'])
+  else:
+    winners: list[str] = []
+    if results['ai1'] == 'win':
+      winners.append('ai1')
+    if results['ai2'] == 'win':
+      winners.append('ai2')
+    if results['player'] == 'win':
+      winners.append('human')
+    logger.log_winners(winners)
+  logger.store_data()
   return results

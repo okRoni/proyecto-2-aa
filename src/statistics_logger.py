@@ -1,5 +1,5 @@
 '''
-Classes used to log the moves made by each player and the winner of each game.
+Classes used to log the moves made by each player and the winners of each game.
 This data is used later to generate game statistics in the app.
 Here 'game' means like the Spanish 'partida'. Didn't find a better translation.
 Available moves (hit and stand) are represented with the strings 'H' and 'S'.
@@ -27,7 +27,7 @@ class Game:
         self.ai1_moves: list[str | int] = []
         self.ai2_moves: list[str | int] = []
         self.human_moves: list[str | int] = []
-        self.winner: str = ''
+        self.winners: list[str] = []
 
 
 class StatisticsLogger:
@@ -39,7 +39,7 @@ class StatisticsLogger:
     instance = None  # Shared instance of StatisticsLogger.
 
     @staticmethod
-    def getLogger() -> 'StatisticsLogger':
+    def get_logger() -> 'StatisticsLogger':
         '''
         Returns the shared instance of StatisticsLogger.
         If the instance doesn't exist, it creates one.
@@ -80,7 +80,7 @@ class StatisticsLogger:
             'ai1_moves': self.current_game.ai1_moves,
             'ai2_moves': self.current_game.ai2_moves,
             'human_moves': self.current_game.human_moves,
-            'winner': self.current_game.winner
+            'winners': self.current_game.winners
         }
         self.games.append(game_dict)
         self.store_data()
@@ -112,15 +112,16 @@ class StatisticsLogger:
             case _:
                 print(f'WARNING: Unknown entity found in log_move ({entity}).')
 
-    def log_winner(self, winner: str) -> None:
+    def log_winners(self, winners: list[str]) -> None:
         '''
-        Logs the specified winner in the current game.
+        Logs the specified winners in the current game.
         '''
 
-        if winner not in ['croupier', 'ai1', 'ai2', 'human']:
-            print(f'WARNING: Unknown entity found in log_winner ({winner}).')
-            return
-        self.current_game.winner = winner
+        for i in winners:
+            if i not in ['croupier', 'ai1', 'ai2', 'human']:
+                print(f'WARNING: Unknown entity found in log_winners ({i}).')
+                return
+        self.current_game.winners = winners
 
     def get_win_percentage(self) -> list[float]:
         '''
@@ -135,17 +136,18 @@ class StatisticsLogger:
             return [0, 0, 0, 0]
         total_wins: list[float] = [0, 0, 0, 0]  # Total wins per player.
         for game in self.games:
-            match game['winner']:
-                case 'croupier':
-                    total_wins[0] += 1
-                case 'ai1':
-                    total_wins[1] += 1
-                case 'ai2':
-                    total_wins[2] += 1
-                case 'human':
-                    total_wins[3] += 1
-                case _:
-                    pass
+            for winner in game['winners']:
+                match winner:
+                    case 'croupier':
+                        total_wins[0] += 1
+                    case 'ai1':
+                        total_wins[1] += 1
+                    case 'ai2':
+                        total_wins[2] += 1
+                    case 'human':
+                        total_wins[3] += 1
+                    case _:
+                        pass
         return [i / total_games for i in total_wins]
 
     def get_success_percentage(self) -> list[float]:
@@ -194,23 +196,3 @@ class StatisticsLogger:
                 1 - 100 * bad_decisions[i] / total_decisions[i]
             )
         return success_percentages
-
-
-if __name__ == '__main__':
-    logger = StatisticsLogger()
-
-    logger.log_move('croupier', 'H', 10)
-    logger.log_move('ai1', 'H', 9)
-    logger.log_move('ai2', 'H', 8)
-    logger.log_move('human', 'H', 7)
-
-    logger.log_move('croupier', 'H', 17)
-    logger.log_move('ai1', 'H', 19)
-    logger.log_move('ai2', 'H', 16)
-    logger.log_move('human', 'S', 7)
-
-    logger.log_winner('ai1')
-    logger.add_current_game()
-    logger.store_data()
-
-    print(logger.get_success_percentage())
