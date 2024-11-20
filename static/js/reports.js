@@ -8,7 +8,7 @@ function generateWinsReport() {
         automargin: true
     }];
     let winsReportLayout = {
-        height: 400,
+        height: 300,
         width: 750,
         margin: { 't': 10, 'b': 10, 'l': 10, 'r': 10 },
         showlegend: false,
@@ -30,7 +30,7 @@ function generateDecisionsReport() {
         automargin: true
     }];
     let decisionsReportLayout = {
-        height: 400,
+        height: 300,
         width: 750,
         margin: { 't': 10, 'b': 10, 'l': 10, 'r': 10 },
         showlegend: false,
